@@ -32,12 +32,11 @@ const ChatListPage = () => {
     };
 
     try {
-      const userChats = await axios.get(
+      const { data } = await axios.get(
         "http://localhost:4000/api/chats",
         config
       );
-      console.log(userChats.data.data);
-      setChats(userChats.data.data);
+      setChats(data.data);
       setLoading(false);
     } catch (error) {
       setErrorMessage(error.message);

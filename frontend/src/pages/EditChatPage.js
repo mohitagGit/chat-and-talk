@@ -31,8 +31,6 @@ const EditChatPage = () => {
   const [newSelectedUsers, setNewSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editMade, setEditMade] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  //   const navigate = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem("current-user"));
 
   const getChatData = async () => {
@@ -45,15 +43,14 @@ const EditChatPage = () => {
     };
 
     try {
-      const userChats = await axios.get(
+      const { data } = await axios.get(
         `http://localhost:4000/api/chats/${chatId}`,
         config
       );
-      console.log(userChats.data);
-      setChatData(userChats.data);
+      setChatData(data);
       setLoading(false);
     } catch (error) {
-      setErrorMessage(error.message);
+      console.log(error.message);
       setLoading(false);
     }
   };
@@ -71,17 +68,16 @@ const EditChatPage = () => {
       userId: userTobeRemoved._id,
     };
     try {
-      const userChats = await axios.put(
+      await axios.put(
         `http://localhost:4000/api/chats/${chatId}/remove-member`,
         removeUserPayload,
         config
       );
-      console.log(userChats.data);
       setEditMade(true);
       setLoading(false);
       setSearchUserList([]);
     } catch (error) {
-      setErrorMessage(error.message);
+      console.log(error.message);
       setLoading(false);
     }
   };
@@ -119,9 +115,8 @@ const EditChatPage = () => {
       setNewSelectedUsers([]);
       setLoading(false);
     } catch (error) {
-      setErrorMessage(error.message);
+      console.log(error.message);
       setLoading(false);
-      console.log(errorMessage);
     }
   };
 
@@ -138,17 +133,16 @@ const EditChatPage = () => {
       userId: userTobeRemoved._id,
     };
     try {
-      const userChats = await axios.put(
+      await axios.put(
         `http://localhost:4000/api/chats/${chatId}/add-member`,
         addUserPayload,
         config
       );
-      console.log(userChats.data);
       setEditMade(true);
       setLoading(false);
       setSearchUserList([]);
     } catch (error) {
-      setErrorMessage(error.message);
+      console.log(error.message);
       setLoading(false);
     }
   };
@@ -189,48 +183,44 @@ const EditChatPage = () => {
                 )}
                 {chatData.isGroup &&
                   chatData.members.map((member, index) => (
-                    <>
-                      <Box key={member._id}>
-                        <Text fontSize="sm">
-                          {member.name} {<>({member.email})</>}
-                          {member._id === chatData.admin ? <>(A)</> : ""}
-                        </Text>
-                        {isGroupAdmin(chatData) &&
-                          member._id !== currentUser.id &&
-                          member._id !== chatData.admin && (
-                            <Button
-                              h="1.75rem"
-                              size="xs"
-                              colorScheme="red"
-                              isLoading={loading}
-                              onClick={() => removeMemberHandler(member)}
-                            >
-                              Remove
-                            </Button>
-                          )}
-                        <Divider />
-                      </Box>
-                    </>
+                    <Box key={member._id}>
+                      <Text fontSize="sm">
+                        {member.name} {<>({member.email})</>}
+                        {member._id === chatData.admin ? <>(A)</> : ""}
+                      </Text>
+                      {isGroupAdmin(chatData) &&
+                        member._id !== currentUser.id &&
+                        member._id !== chatData.admin && (
+                          <Button
+                            h="1.75rem"
+                            size="xs"
+                            colorScheme="red"
+                            isLoading={loading}
+                            onClick={() => removeMemberHandler(member)}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      <Divider />
+                    </Box>
                   ))}
               </div>
             </Stack>
           </CardBody>
-          {chatData.isGroup ? (
+          {chatData.isGroup && (
             <CardFooter>
               {newSelectedUsers.length ? (
-                <>
-                  <Stack w="100%" p={4} spacing={5} direction="row">
-                    {newSelectedUsers.map((selUser) => (
-                      <>
-                        <Avatar key={selUser._id} name={selUser.name}>
-                          <AvatarBadge boxSize="1.25em" bg="gray">
-                            {/* <Icon as={CloseIcon} /> */}
-                          </AvatarBadge>
-                        </Avatar>
-                      </>
-                    ))}
-                  </Stack>
-                </>
+                <Stack w="100%" p={4} spacing={5} direction="row">
+                  {newSelectedUsers.map((selUser) => (
+                    <>
+                      <Avatar key={selUser._id} name={selUser.name}>
+                        <AvatarBadge boxSize="1.25em" bg="gray">
+                          {/* <Icon as={CloseIcon} /> */}
+                        </AvatarBadge>
+                      </Avatar>
+                    </>
+                  ))}
+                </Stack>
               ) : (
                 ""
               )}
@@ -290,12 +280,10 @@ const EditChatPage = () => {
                   : ""}
               </Stack>
             </CardFooter>
-          ) : (
-            ""
           )}
         </Card>
       ) : (
-        ""
+        <Card>Invalid Chat!</Card>
       )}
     </div>
   );

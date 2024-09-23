@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const colors = require("colors");
 const cors = require("cors");
+const { Server } = require("socket.io");
 
 const connectDB = require("./config/db");
 const { unknownEndpoint, errorHandler } = require("./middleware/errorHandler");
@@ -36,6 +37,41 @@ app.use(unknownEndpoint);
 app.use(errorHandler);
 
 // Start the server
-app.listen(PORT, () => {
+const nodeServer = app.listen(PORT, () => {
   console.log(`Running, on port: ${PORT}`.magenta.bold);
+});
+
+// Initialize Socket.IO on the server
+const io = new Server(nodeServer, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("Connected to socket.io", socket.id);
+  socket.on("JOINED_CHAT_ROOM", (chatId) => {
+    socket.join(chatId);
+    console.log("User Joined Chat Room: " + chatId);
+  });
+
+  socket.on("TYPING", (username, chatId, content) => {
+    console.log(`${username} is typing in group ${chatId}: ${content}`);
+    socket.to(chatId).emit("USER_TYPING", chatId, username, content);
+  });
+
+  socket.on("TYPING_STOPPED", (chatId) =>
+    socket.to(chatId).emit("USER_TYPING_STOPPED")
+  );
+
+  socket.on("NEW_MESSAGE_TO_SERVER", (messageData) => {
+    if (messageData && messageData.chatId) {
+      const chatId = messageData.chatId;
+      socket.to(chatId).emit("NEW_MESSAGE_TO_CLIENT", { messageData });
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("#### User Disconnected ####");
+  });
 });

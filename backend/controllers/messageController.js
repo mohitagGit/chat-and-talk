@@ -15,7 +15,6 @@ const sendMessage = asyncHandler(async (req, res) => {
     members: { $elemMatch: { $eq: req.user._id } },
   });
 
-  console.log("Chat infor", chatInfo);
   if (!chatInfo) {
     return res.status(404).json({ error: "Invalid chat." });
   }
@@ -28,12 +27,10 @@ const sendMessage = asyncHandler(async (req, res) => {
 
   try {
     const newMessage = await Message.create(newMessagePayload);
-    console.log("New message", newMessage);
     const messageInfo = await Message.findById(newMessage._id).populate(
       "sender",
-      "-password"
+      "_id name"
     );
-    console.log("Full message", messageInfo);
 
     res.status(201).json({
       message: `Message sent successfully.`,
@@ -51,7 +48,6 @@ const getAllMessages = asyncHandler(async (req, res) => {
     members: { $elemMatch: { $eq: req.user._id } },
   });
 
-  console.log("Chat infor", chatInfo);
   if (!chatInfo) {
     return res.status(404).json({ error: "Invalid chat." });
   }
@@ -73,7 +69,6 @@ const getAllMessages = asyncHandler(async (req, res) => {
         });
       });
   } catch (error) {
-    console.log(error);
     return res.status(404).json({ error: error });
   }
 });

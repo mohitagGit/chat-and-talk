@@ -88,8 +88,7 @@ const searchUsers = asyncHandler(async (req, res) => {
       { email: { $regex: searchKeyword, $options: "i" } },
     ],
   };
-  console.log(searchKeyword);
-  console.log(searchQuery);
+
   const users = await User.find(searchQuery)
     .find({ _id: { $ne: req.user.id } })
     .sort({ name: 1 })

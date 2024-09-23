@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
+import { io } from "socket.io-client";
 import {
   Box,
   Card,
@@ -18,7 +19,11 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import BackToHomeButton from "../components/BackToHomeButton";
+import UserTyping from "../components/UserTyping";
 import { chatTitle } from "../logics/chatLogic";
+
+const socket = io("http://localhost:4000"); // Connect to the Node.js backend
+const currentUser = JSON.parse(localStorage.getItem("current-user"));
 
 const ConversationPage = () => {
   const { chatId } = useParams();
@@ -27,9 +32,11 @@ const ConversationPage = () => {
   const [messageToSend, setMessageToSend] = useState("");
   const [messageSent, setMessageSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const currentUser = JSON.parse(localStorage.getItem("current-user"));
+  const [isUserTyping, setIsUserTyping] = useState(false);
+  const [typingUserName, setTypingUserName] = useState("");
+  const [typingUserContent, setTypingUserContent] = useState("");
 
+  // to get chat history
   const getChatMessages = async () => {
     setLoading(true);
     const config = {
@@ -44,16 +51,17 @@ const ConversationPage = () => {
         `http://localhost:4000/api/messages/${chatId}`,
         config
       );
-      console.log(userChats.data.data);
       setMessages(userChats.data.data);
       setChatData(userChats.data.chat);
       setLoading(false);
+      socket.emit("JOINED_CHAT_ROOM", chatId);
     } catch (error) {
-      setErrorMessage(error.message);
+      console.log(error.message);
       setLoading(false);
     }
   };
 
+  // to send a message
   const sendMessageHandler = async () => {
     if (!messageToSend) {
       return false;
@@ -63,6 +71,7 @@ const ConversationPage = () => {
       groupId: chatId,
       message: messageToSend,
     };
+    setMessageToSend("");
     setLoading(true);
     const config = {
       headers: {
@@ -71,30 +80,73 @@ const ConversationPage = () => {
       },
     };
     try {
-      const userLoginData = await axios.post(
+      const { data } = await axios.post(
         "http://localhost:4000/api/messages",
         messagePayload,
         config
       );
-      console.log(userLoginData.data);
+      socket.emit("NEW_MESSAGE_TO_SERVER", data.data); // Send message to server
+      setMessages((prevMsgs) => [...prevMsgs, data.data]);
       setLoading(false);
       setMessageSent(true);
-      setMessageToSend("");
     } catch (error) {
-      setErrorMessage(error.message);
+      console.log(error.message);
       setLoading(false);
     }
   };
 
+  const handleMessageInputChange = (e) => {
+    setMessageToSend(e.target.value);
+  };
+
+  // to handle enter key event
   const handleEnterKeyPress = (event) => {
     if (event.key === "Enter") {
       sendMessageHandler();
     }
   };
 
+  // for triggering typing event
+  const typingHandler = (e) => {
+    if (!isUserTyping) {
+      socket.emit("TYPING", currentUser.name, chatData._id, e.target.value);
+      setIsUserTyping(true);
+    }
+
+    setTimeout(() => {
+      socket.emit("TYPING_STOPPED", chatData._id);
+      setIsUserTyping(false);
+    }, 2000);
+  };
+
   useEffect(() => {
     getChatMessages();
-  }, [messageSent]);
+
+    // to handle if someone is typing in chat
+    socket.on("USER_TYPING", (roomId, name, content) => {
+      if (chatId === roomId) {
+        setTypingUserName(name);
+        setTypingUserContent(content);
+        console.log(`${name} is typing...`);
+      }
+    });
+
+    // to handle if typing in stopped
+    socket.on("USER_TYPING_STOPPED", () => {
+      setTypingUserName("");
+    });
+
+    // to handle new message event
+    socket.on("NEW_MESSAGE_TO_CLIENT", ({ messageData }) => {
+      if (messageData.sender._id !== currentUser.id) {
+        setMessages((prevMsgs) => [...prevMsgs, messageData]);
+      }
+    });
+
+    return () => {
+      socket.off("disconnect");
+    };
+  }, []);
 
   return (
     <div>
@@ -114,6 +166,10 @@ const ConversationPage = () => {
                 >
                   {chatTitle(chatData)}
                 </Link>
+                <UserTyping
+                  isGroup={chatData.isGroup}
+                  typingUserName={typingUserName}
+                />
               </Heading>
               <Divider />
             </>
@@ -147,13 +203,19 @@ const ConversationPage = () => {
               placeholder="Enter Message"
               type="text"
               required
-              onKeyDown={handleEnterKeyPress}
-              onChange={(e) => setMessageToSend(e.target.value)}
+              onKeyUp={(e) => {
+                handleEnterKeyPress(e);
+                handleMessageInputChange(e);
+              }}
+              onChange={(e) => {
+                typingHandler(e);
+              }}
             />
             <InputRightElement width="4.5rem">
               <Button
                 h="1.75rem"
                 size="sm"
+                isLoading={loading}
                 colorScheme="teal"
                 onClick={() => sendMessageHandler()}
               >
