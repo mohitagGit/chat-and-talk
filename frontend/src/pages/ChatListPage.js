@@ -116,7 +116,7 @@ const ChatListPage = () => {
                 New Chat
               </Button>
             </Box>
-            {chats ? (
+            {chats.length && (
               <div>
                 {chats.map((chat, index) => (
                   <Box key={chat._id} bg="white" w="100%" p={4} color="black">
@@ -144,8 +144,6 @@ const ChatListPage = () => {
                   </Box>
                 ))}
               </div>
-            ) : (
-              ""()
             )}
           </div>
         </Stack>

@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const colors = require("colors");
 const cors = require("cors");
 const { Server } = require("socket.io");
+const path = require("path");
 
 const connectDB = require("./config/db");
 const { unknownEndpoint, errorHandler } = require("./middleware/errorHandler");
@@ -20,11 +21,20 @@ app.use(bodyParser.json());
 // Connect to MongoDB
 connectDB();
 
-app.get("/", (req, res) => {
-  res.send(
-    `<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a> for Varta Application</p>`
-  );
-});
+const __dirName1 = path.resolve();
+if (process.env.ENV === "production") {
+  console.log("Running in prod mode");
+  app.use(express.static(path.join(__dirName1, "/frontend/build")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirName1, "frontend", "build", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send(
+      `<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a> for Varta Application</p>`
+    );
+  });
+}
 
 // handling api calls
 app.use("/api", userRoutes);
