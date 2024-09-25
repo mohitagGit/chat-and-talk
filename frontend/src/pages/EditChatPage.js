@@ -43,10 +43,7 @@ const EditChatPage = () => {
     };
 
     try {
-      const { data } = await axios.get(
-        `http://localhost:4000/api/chats/${chatId}`,
-        config
-      );
+      const { data } = await axios.get(`/api/chats/${chatId}`, config);
       setChatData(data);
       setLoading(false);
     } catch (error) {
@@ -69,7 +66,7 @@ const EditChatPage = () => {
     };
     try {
       await axios.put(
-        `http://localhost:4000/api/chats/${chatId}/remove-member`,
+        `/api/chats/${chatId}/remove-member`,
         removeUserPayload,
         config
       );
@@ -107,7 +104,7 @@ const EditChatPage = () => {
 
     try {
       const usersList = await axios.get(
-        `http://localhost:4000/api/users/search?query=${searchquery}`,
+        `/api/users/search?query=${searchquery}`,
         config
       );
       console.log(usersList.data.data);
@@ -134,7 +131,7 @@ const EditChatPage = () => {
     };
     try {
       await axios.put(
-        `http://localhost:4000/api/chats/${chatId}/add-member`,
+        `/api/chats/${chatId}/add-member`,
         addUserPayload,
         config
       );

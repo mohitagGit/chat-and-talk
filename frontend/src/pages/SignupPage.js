@@ -55,7 +55,7 @@ const SignupPage = () => {
     const config = { headers: { "Content-type": "application/json" } };
     try {
       const userLoginData = await axios.post(
-        "http://localhost:4000/api/users/register",
+        "/api/users/register",
         signupPayload,
         config
       );

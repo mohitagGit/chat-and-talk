@@ -22,7 +22,14 @@ import BackToHomeButton from "../components/BackToHomeButton";
 import UserTyping from "../components/UserTyping";
 import { chatTitle } from "../logics/chatLogic";
 
-const socket = io("http://localhost:4000"); // Connect to the Node.js backend
+// Connect to the Node.js backend
+var backend_url = "http://localhost:4000";
+if (window.location.host === "varta-ls5r.onrender.com") {
+  backend_url = "https://varta-ls5r.onrender.com";
+}
+console.log("backend_url", backend_url);
+const socket = io(backend_url);
+
 const currentUser = JSON.parse(localStorage.getItem("current-user"));
 
 const ConversationPage = () => {
@@ -47,10 +54,7 @@ const ConversationPage = () => {
     };
 
     try {
-      const userChats = await axios.get(
-        `http://localhost:4000/api/messages/${chatId}`,
-        config
-      );
+      const userChats = await axios.get(`/api/messages/${chatId}`, config);
       setMessages(userChats.data.data);
       setChatData(userChats.data.chat);
       setLoading(false);
@@ -81,7 +85,7 @@ const ConversationPage = () => {
     };
     try {
       const { data } = await axios.post(
-        "http://localhost:4000/api/messages",
+        "/api/messages",
         messagePayload,
         config
       );

@@ -32,10 +32,7 @@ const ChatListPage = () => {
     };
 
     try {
-      const { data } = await axios.get(
-        "http://localhost:4000/api/chats",
-        config
-      );
+      const { data } = await axios.get("/api/chats", config);
       setChats(data.data);
       setLoading(false);
     } catch (error) {

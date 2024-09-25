@@ -46,7 +46,7 @@ const NewGroupChatPage = () => {
 
     try {
       const usersList = await axios.get(
-        `http://localhost:4000/api/users/search?query=${searchquery}`,
+        `/api/users/search?query=${searchquery}`,
         config
       );
       console.log(usersList.data.data);
@@ -93,7 +93,7 @@ const NewGroupChatPage = () => {
 
     try {
       const newGroupData = await axios.post(
-        `http://localhost:4000/api/chats/create-group`,
+        `/api/chats/create-group`,
         createGroupPayload,
         config
       );
