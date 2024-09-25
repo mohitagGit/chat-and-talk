@@ -16,7 +16,7 @@ const PORT = process.env.PORT;
 app.use(cors());
 
 // Middleware to parse JSON bodies
-app.use(bodyParser.json());
+app.use(express.json());
 
 // Connect to MongoDB
 connectDB();
@@ -28,6 +28,22 @@ app.get("/about", (req, res) => {
   res.send("Hey Nodejs About page");
 });
 
+// for deployment
+const __dirName1 = path.resolve();
+if (process.env.ENV === "production") {
+  console.log("Running in prod mode");
+  app.use(express.static(path.join(__dirName1, "/frontend/build")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirName1, "frontend", "build", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send(
+      `<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a> for Varta Application</p>`
+    );
+  });
+}
+
 app.use(unknownEndpoint);
 app.use(errorHandler);
 
@@ -38,6 +54,7 @@ const nodeServer = app.listen(PORT, () => {
 
 // Initialize Socket.IO on the server
 const io = new Server(nodeServer, {
+  pingTimeout: 30000,
   cors: {
     origin: "http://localhost:3000",
   },
@@ -70,18 +87,3 @@ io.on("connection", (socket) => {
     console.log("#### User Disconnected ####");
   });
 });
-
-const __dirName1 = path.resolve();
-if (process.env.ENV === "production") {
-  console.log("Running in prod mode");
-  app.use(express.static(path.join(__dirName1, "/frontend/build")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirName1, "frontend", "build", "index.html"));
-  });
-} else {
-  app.get("/", (req, res) => {
-    res.send(
-      `<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a> for Varta Application</p>`
-    );
-  });
-}
