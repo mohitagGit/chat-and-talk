@@ -21,21 +21,6 @@ app.use(bodyParser.json());
 // Connect to MongoDB
 connectDB();
 
-const __dirName1 = path.resolve();
-if (process.env.ENV === "production") {
-  console.log("Running in prod mode");
-  app.use(express.static(path.join(__dirName1, "/frontend/build")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirName1, "frontend", "build", "index.html"));
-  });
-} else {
-  app.get("/", (req, res) => {
-    res.send(
-      `<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a> for Varta Application</p>`
-    );
-  });
-}
-
 // handling api calls
 app.use("/api", userRoutes);
 
@@ -85,3 +70,18 @@ io.on("connection", (socket) => {
     console.log("#### User Disconnected ####");
   });
 });
+
+const __dirName1 = path.resolve();
+if (process.env.ENV === "production") {
+  console.log("Running in prod mode");
+  app.use(express.static(path.join(__dirName1, "/frontend/build")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirName1, "frontend", "build", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send(
+      `<p>Navigate to <a href="http://localhost:3000">http://localhost:3000</a> for Varta Application</p>`
+    );
+  });
+}
