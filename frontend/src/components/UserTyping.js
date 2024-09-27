@@ -3,19 +3,21 @@ import { Text } from "@chakra-ui/react";
 
 const UserTyping = ({ isGroup, typingUserName }) => {
   const typingStyle = {
-    color: "gray",
+    color: "white",
     fontSize: "10px",
-    padding: "5px",
+  };
+  const typingStyleBlank = {
+    color: "teal",
+    fontSize: "10px",
   };
   return (
     <>
       {typingUserName ? (
         <Text style={typingStyle}>
           {isGroup ? <>{typingUserName} is typing...</> : <>Typing...</>}
-          {/* {typingUserName} is typing {typingUserContent} */}
         </Text>
       ) : (
-        <Text style={typingStyle}>.</Text>
+        <Text style={typingStyleBlank}>.</Text>
       )}
     </>
   );

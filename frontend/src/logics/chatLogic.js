@@ -17,5 +17,5 @@ export const chatDescription = (chatData) => {
 };
 
 export const isGroupAdmin = (chatData) => {
-  return chatData.isGroup && chatData.admin === currentUser?.id;
+  return chatData.isGroup && chatData.admin._id === currentUser?.id;
 };

@@ -17,9 +17,11 @@ import {
   Button,
   Avatar,
   AvatarBadge,
-  Icon,
-  Checkbox,
+  IconButton,
+  HStack,
+  VStack,
 } from "@chakra-ui/react";
+import { DeleteIcon } from "@chakra-ui/icons";
 import BackToHomeButton from "../components/BackToHomeButton";
 import { chatTitle, chatDescription, isGroupAdmin } from "../logics/chatLogic";
 
@@ -158,9 +160,9 @@ const EditChatPage = () => {
   return (
     <div>
       {chatData._id ? (
-        <Card>
-          <BackToHomeButton />
-          <CardHeader>
+        <Card p={4}>
+          <BackToHomeButton link={`/chats/${chatId}/messages`} />
+          <CardHeader textAlign="center">
             <Avatar name={chatTitle(chatData)} />
             <Heading size="sm" fontSize="20px">
               {chatTitle(chatData)}
@@ -169,39 +171,47 @@ const EditChatPage = () => {
             <Divider />
           </CardHeader>
           <CardBody>
-            <Stack bg="" w="100%" p={4} color="" spacing={5}>
-              <div>
-                {chatData.isGroup ? (
+            <Stack bg="" w="100%" p={2} color="" spacing={3}>
+              {chatData.isGroup && chatData.members.length && (
+                <>
                   <Heading size="sm" fontSize="18px">
-                    Members
+                    {chatData.members.length} Members
                   </Heading>
-                ) : (
-                  ""
-                )}
-                {chatData.isGroup &&
-                  chatData.members.map((member, index) => (
-                    <Box key={member._id}>
-                      <Text fontSize="sm">
-                        {member.name} {<>({member.email})</>}
-                        {member._id === chatData.admin ? <>(A)</> : ""}
-                      </Text>
+                  <Divider />
+                  {chatData.members.map((member, index) => (
+                    <HStack
+                      bg="gray.50"
+                      key={member._id}
+                      p={2}
+                      borderRadius="md"
+                      boxShadow="sm"
+                    >
+                      <Avatar size="xs" name={member.name} />
+                      <VStack align="start" spacing={0} w="100%">
+                        <Text fontSize="sm">
+                          {member.name} {<>({member.email})</>}
+                        </Text>
+                        <Text fontSize="xs">
+                          {member._id === chatData.admin._id
+                            ? "Admin"
+                            : "Member"}
+                        </Text>
+                      </VStack>
                       {isGroupAdmin(chatData) &&
                         member._id !== currentUser.id &&
-                        member._id !== chatData.admin && (
-                          <Button
-                            h="1.75rem"
-                            size="xs"
+                        member._id !== chatData.admin._id && (
+                          <IconButton
+                            icon={<DeleteIcon />}
                             colorScheme="red"
-                            isLoading={loading}
+                            size="xs"
                             onClick={() => removeMemberHandler(member)}
-                          >
-                            Remove
-                          </Button>
+                            aria-label="Remove user"
+                          />
                         )}
-                      <Divider />
-                    </Box>
+                    </HStack>
                   ))}
-              </div>
+                </>
+              )}
             </Stack>
           </CardBody>
           {chatData.isGroup && (
@@ -211,9 +221,7 @@ const EditChatPage = () => {
                   {newSelectedUsers.map((selUser) => (
                     <>
                       <Avatar key={selUser._id} name={selUser.name}>
-                        <AvatarBadge boxSize="1.25em" bg="gray">
-                          {/* <Icon as={CloseIcon} /> */}
-                        </AvatarBadge>
+                        <AvatarBadge boxSize="1.25em" bg="gray"></AvatarBadge>
                       </Avatar>
                     </>
                   ))}
@@ -280,7 +288,7 @@ const EditChatPage = () => {
           )}
         </Card>
       ) : (
-        <Card>Invalid Chat!</Card>
+        <Card>Loading...</Card>
       )}
     </div>
   );

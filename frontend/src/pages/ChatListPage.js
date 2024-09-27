@@ -4,19 +4,24 @@ import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
-  Divider,
   Card,
   CardHeader,
   Heading,
   CardBody,
-  Stack,
   CardFooter,
   Avatar,
+  Text,
+  VStack,
+  HStack,
+  Spacer,
+  Input,
 } from "@chakra-ui/react";
 import { chatTitle } from "../logics/chatLogic";
+import { formatTimeStamp } from "../logics/timeLogic";
 
 const ChatListPage = () => {
   const [chats, setChats] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
@@ -69,83 +74,114 @@ const ChatListPage = () => {
   return (
     <Card>
       <CardHeader>
-        <Heading size="sm" fontSize="20px">
+        <Heading size="sm" fontSize="20px" textAlign="center">
           {currentUser && currentUser.id ? (
-            <p>
-              LoggedIn: {currentUser.name} ({currentUser.email})
-              <Button colorScheme="red" variant="link" onClick={logoutHandler}>
+            <Text fontSize="sm">
+              {currentUser.name} ({currentUser.email}){" "}
+              <Button
+                colorScheme="red"
+                size="sm"
+                variant="link"
+                onClick={logoutHandler}
+              >
                 Logout
               </Button>
-            </p>
+            </Text>
           ) : (
             ""
           )}
         </Heading>
       </CardHeader>
       <CardBody>
-        <Stack
-          bg=""
-          w="100%"
+        <VStack
+          align="stretch"
+          spacing={4}
           p={4}
-          color="white"
-          spacing={5}
-          direction="column"
+          bg="gray.50"
+          borderRadius="md"
+          w="100%"
+          maxW="lg"
+          mx="auto"
+          boxShadow="md"
         >
-          <div>
-            <Box w="100%" p={4}>
-              <Button
-                size="lg"
-                isLoading={loading}
-                colorScheme="teal"
-                variant="link"
-                pr="20px"
-                onClick={navigateToNewGroup}
+          <Input
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            bg="white"
+            mb={4}
+            borderRadius="md"
+            boxShadow="sm"
+          />
+          {chats.length &&
+            chats.map((chat) => (
+              <HStack
+                key={chat._id}
+                w="100%"
+                p={4}
+                bg="white"
+                borderRadius="md"
+                boxShadow="sm"
+                _hover={{ bg: "gray.100", cursor: "pointer" }}
+                onClick={() => navigateToConvoPage(chat._id)}
               >
-                New Group
-              </Button>
-              <Button
-                size="lg"
-                isLoading={loading}
-                colorScheme="teal"
-                variant="link"
-                onClick={navigateToNewChat}
-              >
-                New Chat
-              </Button>
-            </Box>
-            {chats.length && (
-              <div>
-                {chats.map((chat, index) => (
-                  <Box key={chat._id} bg="white" w="100%" p={4} color="black">
-                    <Box
-                      bg="gray"
-                      onClick={() => navigateToGroupDetail(chat._id)}
-                    >
-                      {chat.isGroup ? (
-                        <Avatar name={chatTitle(chat)} />
-                      ) : (
-                        <Avatar />
-                      )}{" "}
-                      {chatTitle(chat)}
-                      {chat.isGroup ? "(Group)" : "(OTO)"}
-                    </Box>
-                    <Box
-                      bg="gray.200"
-                      onClick={() => navigateToConvoPage(chat._id)}
-                    >
-                      {chat.members.map((member, index) => (
-                        <div key={member._id}>{member.name}</div>
-                      ))}
-                    </Box>
-                    <Divider />
-                  </Box>
-                ))}
-              </div>
-            )}
-          </div>
-        </Stack>
+                <Avatar name={chatTitle(chat)} />
+                <VStack align="start" spacing={1} w="100%">
+                  <HStack w="100%">
+                    <Text fontWeight="bold">{chatTitle(chat)}</Text>
+                    <Spacer />
+                    <Text fontSize="sm" color="gray.500">
+                      {chat.lastMessage
+                        ? formatTimeStamp(chat.lastMessage.updatedAt)
+                        : formatTimeStamp(chat.createdAt)}
+                    </Text>
+                  </HStack>
+                  <HStack w="100%">
+                    {chat.lastMessage ? (
+                      <Text fontSize="sm" color="gray.600" isTruncated>
+                        {chat.lastMessage.sender._id === currentUser.id
+                          ? "You: "
+                          : chat.lastMessage.sender.name + ": "}
+                        {chat.lastMessage.message}
+                      </Text>
+                    ) : (
+                      <Text fontSize="sm">
+                        <i>Click to start conversation</i>
+                      </Text>
+                    )}
+                    <Spacer />
+                    {/* {chat.unread > 0 && (
+                    <Badge colorScheme="blue">{chat.unread}</Badge>
+                  )} */}
+                  </HStack>
+                </VStack>
+              </HStack>
+            ))}
+        </VStack>
       </CardBody>
-      <CardFooter></CardFooter>
+      <CardFooter>
+        <Box w="100%" p={4}>
+          <Button
+            size="lg"
+            isLoading={loading}
+            colorScheme="teal"
+            variant="link"
+            pr="20px"
+            onClick={navigateToNewGroup}
+          >
+            New Group
+          </Button>
+          <Button
+            size="lg"
+            isLoading={loading}
+            colorScheme="teal"
+            variant="link"
+            onClick={navigateToNewChat}
+          >
+            New Chat
+          </Button>
+        </Box>
+      </CardFooter>
     </Card>
   );
 };

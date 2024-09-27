@@ -1,22 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const BackToHomeButton = () => {
+const BackToHomeButton = ({ link }) => {
+  const backLink = link ? link : "/chats";
   return (
-    <div
-      style={{
-        textAlign: "left",
-      }}
-    >
+    <div>
       <Link
         style={{
-          paddingLeft: "10px",
           textDecoration: "underline",
           fontSize: "15px",
           color: "teal",
           fontWeight: "600",
         }}
-        to="/chats"
+        to={backLink}
       >
         Back
       </Link>

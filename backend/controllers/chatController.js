@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Chat = require("../models/chatModel");
 const User = require("../models/userModel");
+const { populate } = require("dotenv");
 
 const createChat = asyncHandler(async (req, res) => {
   const { recipientId } = req.body;
@@ -64,7 +65,9 @@ const getSingleChat = asyncHandler(async (req, res) => {
     const chatInfo = await Chat.findOne({
       _id: chatId,
       members: { $elemMatch: { $eq: req.user._id } },
-    }).populate("members", "_id name email");
+    })
+      .populate("members", "_id name email")
+      .populate("admin", "_id name email");
     return res.status(200).send(chatInfo);
   } catch (error) {
     return res.status(404).json({ error: error });
@@ -76,13 +79,13 @@ const getChats = asyncHandler(async (req, res) => {
     Chat.find({
       members: { $elemMatch: { $eq: req.user._id } },
     })
-      .populate("members", "_id name")
-      .populate("lastMessage")
+      .populate({ path: "members", select: "_id name" })
+      .populate({
+        path: "lastMessage",
+        populate: { path: "sender", select: "_id name" },
+        select: "_id message updatedAt",
+      })
       .then(async (results) => {
-        // results = await User.populate(results, {
-        //   path: "lastMessage.sender",
-        //   select: "name email",
-        // });
         res.status(200).send({
           message: `${results.length} chat(s) found`,
           data: results,

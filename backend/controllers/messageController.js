@@ -32,6 +32,10 @@ const sendMessage = asyncHandler(async (req, res) => {
       "_id name"
     );
 
+    const updatedChat = await Chat.findByIdAndUpdate(chatInfo._id, {
+      lastMessage: newMessage,
+    });
+
     res.status(201).json({
       message: `Message sent successfully.`,
       data: messageInfo,

@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-import { CloseIcon } from "@chakra-ui/icons";
 import {
   Input,
   Button,
   Stack,
   Box,
-  Icon,
   Card,
   InputGroup,
   InputRightElement,
@@ -103,7 +100,7 @@ const NewChatPage = () => {
   };
 
   return (
-    <Card>
+    <Card p={4}>
       <BackToHomeButton />
       <CardHeader>
         <Heading size="md" fontSize="30px">

@@ -130,7 +130,7 @@ const NewGroupChatPage = () => {
   };
 
   return (
-    <Card>
+    <Card p={4}>
       <BackToHomeButton />
       <CardHeader>
         <Heading size="md" fontSize="30px">

@@ -5,22 +5,17 @@ import { io } from "socket.io-client";
 import {
   Box,
   Card,
-  CardHeader,
-  Heading,
-  CardBody,
-  Stack,
   Text,
-  Divider,
-  CardFooter,
-  InputGroup,
   Input,
-  InputRightElement,
   Button,
   Avatar,
+  VStack,
+  HStack,
 } from "@chakra-ui/react";
 import BackToHomeButton from "../components/BackToHomeButton";
 import UserTyping from "../components/UserTyping";
 import { chatTitle } from "../logics/chatLogic";
+import { formatTimeStamp } from "../logics/timeLogic";
 
 // Connect to the Node.js backend
 var backend_url = "http://localhost:4000";
@@ -41,7 +36,6 @@ const ConversationPage = () => {
   const [loading, setLoading] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [typingUserName, setTypingUserName] = useState("");
-  const [typingUserContent, setTypingUserContent] = useState("");
 
   // to get chat history
   const getChatMessages = async () => {
@@ -130,7 +124,6 @@ const ConversationPage = () => {
     socket.on("USER_TYPING", (roomId, name, content) => {
       if (chatId === roomId) {
         setTypingUserName(name);
-        setTypingUserContent(content);
         console.log(`${name} is typing...`);
       }
     });
@@ -153,18 +146,17 @@ const ConversationPage = () => {
   }, []);
 
   return (
-    <div>
-      <Card>
+    <Card>
+      <Box bg="gray.100" minH="100vh" p={4}>
         <BackToHomeButton />
-        <CardHeader>
+        <VStack spacing={4} align="stretch">
           {chatData._id && (
-            <>
+            <HStack spacing={4} p={4} bg="teal" color="white" borderRadius="md">
               <Avatar name={chatTitle(chatData)} />
-              <Heading size="md">
+              <Text fontSize="lg" fontWeight="bold">
                 <Link
                   style={{
                     textDecoration: "underline",
-                    fontWeight: "600",
                   }}
                   to={`/chats/${chatData._id}/edit`}
                 >
@@ -174,62 +166,69 @@ const ConversationPage = () => {
                   isGroup={chatData.isGroup}
                   typingUserName={typingUserName}
                 />
-              </Heading>
-              <Divider />
-            </>
+              </Text>
+            </HStack>
           )}
-        </CardHeader>
 
-        <CardBody>
-          <Stack spacing="4">
-            {messages.length ? (
-              <div>
-                {messages.map((message, index) => (
-                  <Box key={message._id}>
-                    <Heading size="xs" textTransform="uppercase">
-                      {message.sender.name}
-                    </Heading>
-                    <Text pt="2" fontSize="sm">
-                      {message.message}
-                    </Text>
-                    <Divider />
-                  </Box>
-                ))}
-              </div>
-            ) : (
-              ""
-            )}
-          </Stack>
-        </CardBody>
-        <CardFooter>
-          <InputGroup size="md">
+          <Box
+            bg="white"
+            flex="1"
+            p={4}
+            borderRadius="md"
+            boxShadow="sm"
+            overflowY="auto"
+            maxH="70vh"
+          >
+            {messages.map((msg, index) => (
+              <HStack
+                key={msg._id}
+                align="flex-start"
+                mb={2}
+                justify={
+                  msg.sender._id === currentUser.id ? "flex-end" : "flex-start"
+                }
+              >
+                {msg.sender !== currentUser.id && (
+                  <Avatar size="xs" name={msg.sender.name} />
+                )}
+                <VStack
+                  align="stretch"
+                  bg={msg.sender === currentUser.id ? "blue.100" : "gray.100"}
+                  borderRadius="md"
+                  p={2}
+                >
+                  <Text fontSize="xs">{msg.message}</Text>
+                  <Text fontSize="xs" color="gray.500">
+                    {formatTimeStamp(msg.updatedAt)}
+                  </Text>
+                </VStack>
+              </HStack>
+            ))}
+          </Box>
+
+          {/* message input box */}
+          <HStack spacing={4}>
             <Input
-              placeholder="Enter Message"
-              type="text"
               required
               onKeyUp={(e) => {
                 handleEnterKeyPress(e);
-                handleMessageInputChange(e);
               }}
               onChange={(e) => {
                 typingHandler(e);
+                handleMessageInputChange(e);
               }}
+              placeholder="Type your message..."
+              bg="white"
+              flex="1"
+              borderRadius="md"
             />
-            <InputRightElement width="4.5rem">
-              <Button
-                h="1.75rem"
-                size="sm"
-                isLoading={loading}
-                colorScheme="teal"
-                onClick={() => sendMessageHandler()}
-              >
-                Send
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-        </CardFooter>
-      </Card>
-    </div>
+            <Button colorScheme="teal" onClick={sendMessageHandler}>
+              Send
+            </Button>
+          </HStack>
+        </VStack>
+      </Box>
+    </Card>
   );
 };
 
