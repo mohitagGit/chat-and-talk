@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardBody,
   CardFooter,
+  Flex,
 } from "@chakra-ui/react";
 
 const SignupPage = () => {
@@ -96,60 +97,62 @@ const SignupPage = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <Heading size="md" fontSize="40px">
-          @VARTA
-        </Heading>
-      </CardHeader>
-      <CardBody>
-        <Stack bg="" w="100%" p={4} color="" spacing={5} direction="column">
-          <Input
-            placeholder="Your Name"
-            type="text"
-            required
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <Input
-            placeholder="Your Email"
-            type="email"
-            required
-            onChange={(e) => setUseremail(e.target.value)}
-          />
-          <Input
-            placeholder="Enter password"
-            type="password"
-            required
-            onChange={(e) => setUserpass(e.target.value)}
-          />
-          <Input
-            placeholder="Confirm password"
-            type="password"
-            required
-            onChange={(e) => setUserConfPass(e.target.value)}
-          />
-          <Button
-            size="lg"
-            colorScheme="teal"
-            isLoading={loading}
-            mt="24px"
-            onClick={() => submitSignup()}
-          >
-            SignUp
-          </Button>
-          <hr />
-          <Button
-            size="lg"
-            colorScheme="teal"
-            mt="24px"
-            onClick={gotoLoginPage}
-          >
-            Login
-          </Button>
-        </Stack>
-      </CardBody>
-      <CardFooter></CardFooter>
-    </Card>
+    <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
+      <Card>
+        <CardHeader>
+          <Heading size="md" fontSize="40px">
+            @VARTA
+          </Heading>
+        </CardHeader>
+        <CardBody>
+          <Stack bg="" w="100%" p={4} color="" spacing={5} direction="column">
+            <Input
+              placeholder="Your Name"
+              type="text"
+              required
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <Input
+              placeholder="Your Email"
+              type="email"
+              required
+              onChange={(e) => setUseremail(e.target.value)}
+            />
+            <Input
+              placeholder="Enter password"
+              type="password"
+              required
+              onChange={(e) => setUserpass(e.target.value)}
+            />
+            <Input
+              placeholder="Confirm password"
+              type="password"
+              required
+              onChange={(e) => setUserConfPass(e.target.value)}
+            />
+            <Button
+              size="lg"
+              colorScheme="teal"
+              isLoading={loading}
+              mt="24px"
+              onClick={() => submitSignup()}
+            >
+              SignUp
+            </Button>
+            <hr />
+            <Button
+              size="lg"
+              colorScheme="teal"
+              mt="24px"
+              onClick={gotoLoginPage}
+            >
+              Login
+            </Button>
+          </Stack>
+        </CardBody>
+        <CardFooter></CardFooter>
+      </Card>
+    </Flex>
   );
 };
 

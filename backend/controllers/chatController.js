@@ -85,6 +85,7 @@ const getChats = asyncHandler(async (req, res) => {
         populate: { path: "sender", select: "_id name" },
         select: "_id message updatedAt",
       })
+      .sort({ updatedAt: -1 })
       .then(async (results) => {
         res.status(200).send({
           message: `${results.length} chat(s) found`,

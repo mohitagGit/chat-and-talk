@@ -13,6 +13,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Flex,
 } from "@chakra-ui/react";
 
 const LoginPage = () => {
@@ -91,54 +92,56 @@ const LoginPage = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <Heading size="md" fontSize="40px" onClick={navigateToAbout}>
-          @VARTA
-        </Heading>
-      </CardHeader>
-      <CardBody>
-        <Stack bg="" w="100%" p={4} color="" spacing={5} direction="column">
-          <Input
-            placeholder="Your Email"
-            type="email"
-            required
-            onChange={(e) => setUseremail(e.target.value)}
-          />
-          <InputGroup size="md">
+    <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
+      <Card>
+        <CardHeader>
+          <Heading size="md" fontSize="40px" onClick={navigateToAbout}>
+            @VARTA
+          </Heading>
+        </CardHeader>
+        <CardBody>
+          <Stack bg="" w="100%" p={4} color="" spacing={5} direction="column">
             <Input
-              placeholder="Enter password"
-              type={showPass ? "text" : "password"}
+              placeholder="Your Email"
+              type="email"
               required
-              onChange={(e) => setUserpass(e.target.value)}
+              onChange={(e) => setUseremail(e.target.value)}
             />
-            <InputRightElement width="4.5rem">
-              <Button h="1.75rem" size="sm" onClick={() => handleShowPass()}>
-                {showPass ? "Hide" : "Show"}
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-          <Button
-            size="lg"
-            isLoading={loading}
-            colorScheme="teal"
-            mt="24px"
-            onClick={submitLogin}
-          >
-            Login
-          </Button>
-          <Divider />
-          <Button
-            size="lg"
-            colorScheme="teal"
-            mt="24px"
-            onClick={gotoSignUpPage}
-          >
-            SignUp
-          </Button>
-        </Stack>
-      </CardBody>
-    </Card>
+            <InputGroup size="md">
+              <Input
+                placeholder="Enter password"
+                type={showPass ? "text" : "password"}
+                required
+                onChange={(e) => setUserpass(e.target.value)}
+              />
+              <InputRightElement width="4.5rem">
+                <Button h="1.75rem" size="sm" onClick={() => handleShowPass()}>
+                  {showPass ? "Hide" : "Show"}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
+            <Button
+              size="lg"
+              isLoading={loading}
+              colorScheme="teal"
+              mt="24px"
+              onClick={submitLogin}
+            >
+              Login
+            </Button>
+            <Divider />
+            <Button
+              size="lg"
+              colorScheme="teal"
+              mt="24px"
+              onClick={gotoSignUpPage}
+            >
+              SignUp
+            </Button>
+          </Stack>
+        </CardBody>
+      </Card>
+    </Flex>
   );
 };
 

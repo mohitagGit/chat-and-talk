@@ -11,7 +11,10 @@ import {
   Avatar,
   VStack,
   HStack,
+  Flex,
 } from "@chakra-ui/react";
+import ScrollableFeed from "react-scrollable-feed";
+
 import BackToHomeButton from "../components/BackToHomeButton";
 import UserTyping from "../components/UserTyping";
 import { chatTitle } from "../logics/chatLogic";
@@ -25,8 +28,6 @@ if (window.location.host === "varta-ls5r.onrender.com") {
 console.log("backend_url", backend_url);
 const socket = io(backend_url);
 
-const currentUser = JSON.parse(localStorage.getItem("current-user"));
-
 const ConversationPage = () => {
   const { chatId } = useParams();
   const [messages, setMessages] = useState([]);
@@ -36,6 +37,7 @@ const ConversationPage = () => {
   const [loading, setLoading] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [typingUserName, setTypingUserName] = useState("");
+  const currentUser = JSON.parse(localStorage.getItem("current-user"));
 
   // to get chat history
   const getChatMessages = async () => {
@@ -146,10 +148,10 @@ const ConversationPage = () => {
   }, []);
 
   return (
-    <Card>
-      <Box bg="gray.100" minH="100vh" p={4}>
+    <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
+      <Card p={4}>
         <BackToHomeButton />
-        <VStack spacing={4} align="stretch">
+        <VStack spacing={1} align="stretch">
           {chatData._id && (
             <HStack spacing={4} p={4} bg="teal" color="white" borderRadius="md">
               <Avatar name={chatTitle(chatData)} />
@@ -169,41 +171,46 @@ const ConversationPage = () => {
               </Text>
             </HStack>
           )}
-
           <Box
             bg="white"
             flex="1"
-            p={4}
-            borderRadius="md"
             boxShadow="sm"
             overflowY="auto"
             maxH="70vh"
+            minH="70vh"
           >
-            {messages.map((msg, index) => (
-              <HStack
-                key={msg._id}
-                align="flex-start"
-                mb={2}
-                justify={
-                  msg.sender._id === currentUser.id ? "flex-end" : "flex-start"
-                }
-              >
-                {msg.sender !== currentUser.id && (
-                  <Avatar size="xs" name={msg.sender.name} />
-                )}
-                <VStack
-                  align="stretch"
-                  bg={msg.sender === currentUser.id ? "blue.100" : "gray.100"}
-                  borderRadius="md"
-                  p={2}
+            <ScrollableFeed>
+              {messages.map((msg, index) => (
+                <HStack
+                  key={msg._id}
+                  align="flex-start"
+                  mb={2}
+                  justify={
+                    msg.sender._id === currentUser.id
+                      ? "flex-end"
+                      : "flex-start"
+                  }
                 >
-                  <Text fontSize="xs">{msg.message}</Text>
-                  <Text fontSize="xs" color="gray.500">
-                    {formatTimeStamp(msg.updatedAt)}
-                  </Text>
-                </VStack>
-              </HStack>
-            ))}
+                  {/* {
+                  const showAvatar = index === 0 || messages[index - 1].user !== message.user
+                } */}
+                  {msg.sender !== currentUser.id && (
+                    <Avatar size="xs" name={msg.sender.name} />
+                  )}
+                  <VStack
+                    align="stretch"
+                    bg={msg.sender === currentUser.id ? "blue.100" : "gray.100"}
+                    borderRadius="md"
+                    p={2}
+                  >
+                    <Text fontSize="xs">{msg.message}</Text>
+                    <Text fontSize="xs" color="gray.500">
+                      {formatTimeStamp(msg.updatedAt)}
+                    </Text>
+                  </VStack>
+                </HStack>
+              ))}
+            </ScrollableFeed>
           </Box>
 
           {/* message input box */}
@@ -227,8 +234,8 @@ const ConversationPage = () => {
             </Button>
           </HStack>
         </VStack>
-      </Box>
-    </Card>
+      </Card>
+    </Flex>
   );
 };
 

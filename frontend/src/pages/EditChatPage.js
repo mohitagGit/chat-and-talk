@@ -20,6 +20,7 @@ import {
   IconButton,
   HStack,
   VStack,
+  Flex,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import BackToHomeButton from "../components/BackToHomeButton";
@@ -158,7 +159,7 @@ const EditChatPage = () => {
   }, [editMade]);
 
   return (
-    <div>
+    <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       {chatData._id ? (
         <Card p={4}>
           <BackToHomeButton link={`/chats/${chatId}/messages`} />
@@ -290,7 +291,7 @@ const EditChatPage = () => {
       ) : (
         <Card>Loading...</Card>
       )}
-    </div>
+    </Flex>
   );
 };
 

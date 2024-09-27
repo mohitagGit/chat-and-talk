@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardBody,
   CardFooter,
+  Flex,
 } from "@chakra-ui/react";
 import BackToHomeButton from "../components/BackToHomeButton";
 
@@ -100,63 +101,67 @@ const NewChatPage = () => {
   };
 
   return (
-    <Card p={4}>
-      <BackToHomeButton />
-      <CardHeader>
-        <Heading size="md" fontSize="30px">
-          New Chat
-        </Heading>
-      </CardHeader>
-      <CardBody>
-        <Stack bg="" w="100%" p={4} color="" spacing={5} direction="column">
-          <InputGroup size="md">
-            <Input
-              placeholder="Name or email"
-              type={"text"}
-              required
-              onKeyDown={handleEnterKeyPress}
-              onChange={(e) => setSearchquery(e.target.value)}
-            />
-            <InputRightElement width="4.5rem">
-              <Button
-                h="1.75rem"
-                size="sm"
-                colorScheme="teal"
-                onClick={() => searchUser()}
-              >
-                search
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-          {users.length
-            ? users.map((user, index) => (
-                <Stack
-                  key={user._id}
-                  bg="teal"
-                  w="100%"
-                  p={3}
-                  color="white"
-                  spacing={1}
-                  direction="column"
-                >
-                  <Box fontSize="sm">
-                    {user.name}({user.email})
-                  </Box>
+    <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
+      <Card p={4}>
+        <BackToHomeButton />
+        <Box boxShadow="sm" borderRadius="sm">
+          <CardHeader>
+            <Heading size="md" fontSize="30px">
+              New Chat
+            </Heading>
+          </CardHeader>
+          <CardBody>
+            <Stack bg="" w="100%" p={4} color="" spacing={5} direction="column">
+              <InputGroup size="md">
+                <Input
+                  placeholder="Name or email"
+                  type={"text"}
+                  required
+                  onKeyDown={handleEnterKeyPress}
+                  onChange={(e) => setSearchquery(e.target.value)}
+                />
+                <InputRightElement width="4.5rem">
                   <Button
+                    h="1.75rem"
+                    size="sm"
                     colorScheme="teal"
-                    variant="outline"
-                    size="xs"
-                    onClick={() => createChatHandler(user)}
+                    onClick={() => searchUser()}
                   >
-                    Send Message
+                    search
                   </Button>
-                </Stack>
-              ))
-            : ""}
-        </Stack>
-      </CardBody>
-      <CardFooter></CardFooter>
-    </Card>
+                </InputRightElement>
+              </InputGroup>
+              {users.length
+                ? users.map((user, index) => (
+                    <Stack
+                      key={user._id}
+                      bg="teal"
+                      w="100%"
+                      p={3}
+                      color="white"
+                      spacing={1}
+                      direction="column"
+                    >
+                      <Box fontSize="sm">
+                        {user.name}({user.email})
+                      </Box>
+                      <Button
+                        colorScheme="teal"
+                        variant="outline"
+                        size="xs"
+                        onClick={() => createChatHandler(user)}
+                      >
+                        Send Message
+                      </Button>
+                    </Stack>
+                  ))
+                : ""}
+            </Stack>
+          </CardBody>
+          <CardFooter></CardFooter>
+        </Box>
+      </Card>
+    </Flex>
   );
 };
 
