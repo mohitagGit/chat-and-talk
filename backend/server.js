@@ -61,7 +61,7 @@ const io = new Server(nodeServer, {
 });
 
 io.on("connection", (socket) => {
-  console.log("Connected to socket.io", socket.id);
+  console.log("Mysocket id: ", socket.id);
   socket.on("JOINED_CHAT_ROOM", (chatId) => {
     socket.join(chatId);
     console.log("User Joined Chat Room: " + chatId);
@@ -83,7 +83,28 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect1", () => {
     console.log("#### User Disconnected ####");
+  });
+
+  // idea 2
+  socket.emit("me", socket.id);
+
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("callEnded");
+  });
+
+  socket.on("callUser", (data) => {
+    console.log("callUser: ", data);
+    io.to(data.userToCall).emit("callUser", {
+      signal: data.signalData,
+      from: data.from,
+      name: data.name,
+    });
+  });
+
+  socket.on("answerCall", (data) => {
+    console.log("answerCall: ", data);
+    io.to(data.to).emit("callAccepted", data.signal);
   });
 });

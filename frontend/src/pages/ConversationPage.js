@@ -26,7 +26,7 @@ if (window.location.host === "varta-ls5r.onrender.com") {
   backend_url = "https://varta-ls5r.onrender.com";
 }
 console.log("backend_url", backend_url);
-const socket = io(backend_url);
+const socket = io.connect(backend_url);
 
 const ConversationPage = () => {
   const { chatId } = useParams();

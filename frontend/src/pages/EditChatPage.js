@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
@@ -35,6 +35,7 @@ const EditChatPage = () => {
   const [loading, setLoading] = useState(false);
   const [editMade, setEditMade] = useState(false);
   const currentUser = JSON.parse(localStorage.getItem("current-user"));
+  const navigate = useNavigate();
 
   const getChatData = async () => {
     setLoading(true);
@@ -153,6 +154,10 @@ const EditChatPage = () => {
     }
   };
 
+  const gotoCallPage = () => {
+    navigate(`/chats/${chatId}/call`);
+  };
+
   useEffect(() => {
     getChatData();
     setEditMade(false);
@@ -169,6 +174,7 @@ const EditChatPage = () => {
               {chatTitle(chatData)}
             </Heading>
             <Text fontSize="sm">{chatDescription(chatData)}</Text>
+            <Button onClick={gotoCallPage}>Call {chatTitle(chatData)}</Button>
             <Divider />
           </CardHeader>
           <CardBody>

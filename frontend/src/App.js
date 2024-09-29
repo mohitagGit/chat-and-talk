@@ -10,6 +10,7 @@ import ConversationPage from "./pages/ConversationPage";
 import NewChatPage from "./pages/NewChatPage";
 import NewGroupChatPage from "./pages/NewGroupChatPage";
 import AboutPage from "./pages/AboutPage";
+import CallingPage from "./pages/CallingPage";
 import { NotfoundPage } from "./pages/NotfoundPage";
 import { useEffect } from "react";
 const currentUser = JSON.parse(localStorage.getItem("current-user"));
@@ -35,6 +36,7 @@ function App() {
         <Route path="/chats" element={<ChatListPage />} />
         <Route path="/chats/:chatId/edit" element={<EditChatPage />} />
         <Route path="/chats/:chatId/messages" element={<ConversationPage />} />
+        <Route path="/chats/:chatId/call" element={<CallingPage />} />
         <Route path="/chats/new" element={<NewChatPage />} />
         <Route path="/chats/group/new" element={<NewGroupChatPage />} />
         <Route path="/about" element={<AboutPage />} />
