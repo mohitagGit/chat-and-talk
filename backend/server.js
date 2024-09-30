@@ -107,4 +107,8 @@ io.on("connection", (socket) => {
     console.log("answerCall: ", data);
     io.to(data.to).emit("callAccepted", data.signal);
   });
+
+  socket.on("decline-call", (data) => {
+    io.to(data.target).emit("call-declined", { from: socket.id });
+  });
 });
