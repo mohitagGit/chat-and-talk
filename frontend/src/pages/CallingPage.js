@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import Peer from "simple-peer";
 import io from "socket.io-client";
 import "../../src/App.css";
-import { Input, Button, Text } from "@chakra-ui/react";
+import { Input, Button, Text, Flex, Card } from "@chakra-ui/react";
 import { PhoneIcon } from "@chakra-ui/icons";
 import process from "process";
+import BackToHomeButton from "../components/BackToHomeButton";
 window.process = process;
 
 // Connect to the Node.js backend
@@ -16,6 +18,7 @@ if (window.location.host === "varta-ls5r.onrender.com") {
 const socket = io.connect(backend_url);
 
 const CallingPage = () => {
+  const { chatId } = useParams();
   const [me, setMe] = useState("");
   const [stream, setStream] = useState();
   const [receivingCall, setReceivingCall] = useState(false);
@@ -49,12 +52,12 @@ const CallingPage = () => {
     });
 
     socket.on("callUser", (data) => {
+      console.log("User calling data: ", data);
       setReceivingCall(true);
       setCaller(data.from);
       setName(data.name);
       setCallerSignal(data.signal);
     });
-    setName(currentUser.name);
   }, []);
 
   const callUser = (id) => {
@@ -68,7 +71,7 @@ const CallingPage = () => {
         userToCall: id,
         signalData: data,
         from: me,
-        name: name,
+        name: currentUser.name,
       });
     });
     peer.on("stream", (stream) => {
@@ -77,6 +80,7 @@ const CallingPage = () => {
     socket.on("callAccepted", (signal) => {
       setCallAccepted(true);
       peer.signal(signal);
+      console.log("Call accepted: ", signal);
     });
 
     connectionRef.current = peer;
@@ -106,83 +110,90 @@ const CallingPage = () => {
   };
 
   return (
-    <>
-      <div className="container">
-        <div className="video-container">
-          <div className="video">
-            {stream && (
-              <video
-                playsInline
-                muted
-                ref={myVideo}
-                autoPlay
-                style={{ width: "300px" }}
-              />
-            )}
+    <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
+      <Card p={4}>
+        <BackToHomeButton link={`/chats/${chatId}/edit`} />
+        <div className="container">
+          <div className="video-container">
+            <div className="video">
+              {stream && (
+                <>
+                  <video
+                    playsInline
+                    muted
+                    ref={myVideo}
+                    autoPlay
+                    style={{ width: "300px", border: "1px solid black" }}
+                  />
+                  <div style={{ textAlign: "center" }}>
+                    You: {currentUser.name}
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="video">
+              {callAccepted && !callEnded ? (
+                <>
+                  <video
+                    playsInline
+                    ref={userVideo}
+                    autoPlay
+                    style={{ width: "300px", border: "1px solid green" }}
+                  />
+                  <div style={{ textAlign: "center" }}>{name}</div>
+                </>
+              ) : null}
+            </div>
           </div>
-          <div className="video">
-            {callAccepted && !callEnded ? (
-              <video
-                playsInline
-                ref={userVideo}
-                autoPlay
-                style={{ width: "300px" }}
-              />
+          <div className="myId">
+            <CopyToClipboard text={me} style={{ marginBottom: "2rem" }}>
+              <Button variant="contained" color="primary">
+                Copy ID
+              </Button>
+            </CopyToClipboard>
+            <Text>{me}</Text>
+
+            <Input
+              id="filled-basic"
+              label="ID to call"
+              variant="filled"
+              value={idToCall}
+              onChange={(e) => setIdToCall(e.target.value)}
+            />
+            <div className="call-button">
+              {callAccepted && !callEnded ? (
+                <Button variant="contained" color="red" onClick={leaveCall}>
+                  End Call
+                </Button>
+              ) : (
+                <Button
+                  color="primary"
+                  aria-label="call"
+                  onClick={() => callUser(idToCall)}
+                >
+                  <PhoneIcon fontSize="large" />
+                </Button>
+              )}
+              {idToCall}
+            </div>
+          </div>
+          <div>
+            {receivingCall && !callAccepted ? (
+              <div className="caller">
+                <h1>{name} is calling...</h1>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={answerCall}
+                >
+                  Answer
+                </Button>
+              </div>
             ) : null}
           </div>
         </div>
-        <div className="myId">
-          <Input
-            id="filled-basic"
-            label="Name"
-            variant="filled"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={{ marginBottom: "20px" }}
-          />
-          <CopyToClipboard text={me} style={{ marginBottom: "2rem" }}>
-            <Button variant="contained" color="primary">
-              Copy ID
-            </Button>
-          </CopyToClipboard>
-          <Text>{me}</Text>
-
-          <Input
-            id="filled-basic"
-            label="ID to call"
-            variant="filled"
-            value={idToCall}
-            onChange={(e) => setIdToCall(e.target.value)}
-          />
-          <div className="call-button">
-            {callAccepted && !callEnded ? (
-              <Button variant="contained" color="red" onClick={leaveCall}>
-                End Call
-              </Button>
-            ) : (
-              <Button
-                color="primary"
-                aria-label="call"
-                onClick={() => callUser(idToCall)}
-              >
-                <PhoneIcon fontSize="large" />
-              </Button>
-            )}
-            {idToCall}
-          </div>
-        </div>
-        <div>
-          {receivingCall && !callAccepted ? (
-            <div className="caller">
-              <h1>{name} is calling...</h1>
-              <Button variant="contained" color="primary" onClick={answerCall}>
-                Answer
-              </Button>
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </>
+      </Card>
+    </Flex>
   );
 };
 

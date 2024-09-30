@@ -20,7 +20,10 @@ function App() {
 
   const userSessionCheck = () => {
     if (currentUser && currentUser.id) {
-      navigate("/chats");
+      const path = window.location.pathname;
+      navigate(path);
+    } else {
+      navigate("/");
     }
   };
 

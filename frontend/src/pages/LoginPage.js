@@ -91,6 +91,12 @@ const LoginPage = () => {
     navigate("/about");
   };
 
+  const handleEnterKeyPress = (event) => {
+    if (event.key === "Enter") {
+      submitLogin();
+    }
+  };
+
   return (
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card>
@@ -112,6 +118,7 @@ const LoginPage = () => {
                 placeholder="Enter password"
                 type={showPass ? "text" : "password"}
                 required
+                onKeyDown={handleEnterKeyPress}
                 onChange={(e) => setUserpass(e.target.value)}
               />
               <InputRightElement width="4.5rem">
