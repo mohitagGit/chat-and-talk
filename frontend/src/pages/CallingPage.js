@@ -4,13 +4,21 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import Peer from "simple-peer";
 import io from "socket.io-client";
 import "../../src/App.css";
+import { IconButton, Spacer } from "@chakra-ui/react";
+import {
+  FaVideo,
+  FaVideoSlash,
+  FaMicrophone,
+  FaMicrophoneSlash,
+  FaPhone,
+  // FaVolumeMute,
+  // FaVolumeUp,
+} from "react-icons/fa";
 import {
   Input,
   Button,
-  Text,
   Flex,
   Card,
-  HStack,
   InputGroup,
   InputLeftAddon,
   InputRightAddon,
@@ -33,6 +41,9 @@ const CallingPage = () => {
   const { chatId } = useParams();
   const [me, setMe] = useState("");
   const [stream, setStream] = useState();
+  const [audioEnabled, setAudioEnabled] = useState(true);
+  // const [volumeEnabled, setVolumeEnabled] = useState(true);
+  const [videoEnabled, setVideoEnabled] = useState(true);
   const [receivingCall, setReceivingCall] = useState(false);
   const [caller, setCaller] = useState("");
   const [callerSignal, setCallerSignal] = useState();
@@ -52,9 +63,6 @@ const CallingPage = () => {
       .then((currentStream) => {
         setStream(currentStream);
         if (myVideo.current) {
-          myVideo.current.srcObject = currentStream;
-        } else {
-          myVideo.current = {};
           myVideo.current.srcObject = currentStream;
         }
       });
@@ -79,6 +87,13 @@ const CallingPage = () => {
         myVideo.current.destroy();
       }
     });
+
+    // Clean up the stream on page change
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
   }, []);
 
   // to play incoming call audio
@@ -158,6 +173,28 @@ const CallingPage = () => {
     connectionRef.current.destroy();
   };
 
+  const toggleAudio = () => {
+    if (stream) {
+      stream.getAudioTracks()[0].enabled = !audioEnabled;
+      setAudioEnabled(!audioEnabled);
+    }
+  };
+
+  // const toggleAudioVolume = () => {
+  //   if (userVideo.current) {
+  //     userVideo.current.muted = !volumeEnabled;
+  //     setVolumeEnabled(!volumeEnabled);
+  //   }
+  // };
+
+  const toggleVideo = () => {
+    if (stream) {
+      const videoTrack = stream.getVideoTracks()[0];
+      videoTrack.enabled = !videoEnabled;
+      setVideoEnabled(videoTrack.enabled);
+    }
+  };
+
   return (
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card p={4}>
@@ -233,17 +270,51 @@ const CallingPage = () => {
                 </>
               ) : null}
             </div>
+            <>
+              <IconButton
+                aria-label="Toggle Audio"
+                icon={audioEnabled ? <FaMicrophone /> : <FaMicrophoneSlash />}
+                color={audioEnabled ? "teal.500" : "red.500"}
+                onClick={toggleAudio}
+              />
+              <IconButton
+                aria-label="Toggle Video"
+                icon={videoEnabled ? <FaVideo /> : <FaVideoSlash />}
+                color={videoEnabled ? "teal.500" : "red.500"}
+                onClick={toggleVideo}
+              />
+              {/* <IconButton
+                aria-label="Toggle Volume"
+                icon={volumeEnabled ? <FaVolumeUp /> : <FaVolumeMute />}
+                color={volumeEnabled ? "teal.500" : "red.500"}
+                onClick={toggleAudioVolume}
+              /> */}
+              {callAccepted && !callEnded && (
+                <IconButton
+                  aria-label="End Call"
+                  icon={<FaPhone />}
+                  color="red.500"
+                  onClick={leaveCall}
+                />
+              )}
+            </>
           </div>
           <div>
             {receivingCall && !callAccepted ? (
               <div className="caller">
                 <h1>{name} is calling...</h1>
-                <Button size="md" colorScheme="teal" onClick={answerCall}>
-                  Answer
-                </Button>
-                <Button size="md" colorScheme="red" onClick={declineCall}>
-                  Decline
-                </Button>
+                <IconButton
+                  aria-label="Accept Call"
+                  icon={<FaPhone />}
+                  color="teal.500"
+                  onClick={answerCall}
+                />
+                <IconButton
+                  aria-label="Decline Call"
+                  icon={<FaPhone />}
+                  color="red.500"
+                  onClick={declineCall}
+                />
               </div>
             ) : null}
           </div>
