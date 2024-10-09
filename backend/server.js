@@ -39,7 +39,7 @@ if (process.env.ENV === "production") {
 } else {
   app.get("/", (req, res) => {
     res.send(
-      `<div>Navigate to <div href="http://localhost:3000">http://localhost:3000</div> for Varta Application</div>`
+      `<div>Navigate to <div href="http://localhost:3000">http://localhost:3000</div> for Vartalaap Application</div>`
     );
   });
 }

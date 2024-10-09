@@ -5,10 +5,7 @@ import {
   Box,
   Button,
   Card,
-  CardHeader,
   Heading,
-  CardBody,
-  CardFooter,
   Avatar,
   Text,
   VStack,
@@ -16,18 +13,18 @@ import {
   Spacer,
   Input,
   Flex,
-  Divider,
 } from "@chakra-ui/react";
-import { chatTitle } from "../logics/chatLogic";
+import { useAuth } from "../context/AuthContext";
+import { ChatTitle } from "../logics/chatLogic";
 import { formatTimeStamp } from "../logics/timeLogic";
 
 const ChatListPage = () => {
+  const { logoutUser, currentUser } = useAuth();
   const [chats, setChats] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
-  const currentUser = JSON.parse(localStorage.getItem("current-user"));
 
   const getChatsData = async () => {
     setLoading(true);
@@ -56,17 +53,15 @@ const ChatListPage = () => {
     navigate("/chats/new");
   };
 
-  const navigateToGroupDetail = (chatId) => {
-    navigate(`/chats/${chatId}/edit`);
-  };
-
   const navigateToConvoPage = (chatId) => {
     navigate(`/chats/${chatId}/messages`);
   };
 
   const logoutHandler = () => {
-    localStorage.removeItem("current-user");
-    navigate("/");
+    if (currentUser) {
+      logoutUser();
+      navigate("/");
+    }
   };
 
   useEffect(() => {
@@ -81,7 +76,7 @@ const ChatListPage = () => {
             <Heading size="sm" fontSize="20px" textAlign="center">
               {currentUser && currentUser.id && (
                 <>
-                  <Text fontSize="lg">Varta</Text>
+                  <Text fontSize="lg">Vartalaap</Text>
                   <Text fontSize="sm">
                     {currentUser.name} ({currentUser.email}){" "}
                     <Button
@@ -134,10 +129,12 @@ const ChatListPage = () => {
                   _hover={{ bg: "gray.100", cursor: "pointer" }}
                   onClick={() => navigateToConvoPage(chat._id)}
                 >
-                  <Avatar name={chatTitle(chat)} />
+                  <Avatar name={ChatTitle(chat, currentUser)} />
                   <VStack align="start" spacing={1} w="100%">
                     <HStack w="100%">
-                      <Text fontWeight="bold">{chatTitle(chat)}</Text>
+                      <Text fontWeight="bold">
+                        {ChatTitle(chat, currentUser)}
+                      </Text>
                       <Spacer />
                       <Text fontSize="xs" color="gray.500">
                         {chat.lastMessage

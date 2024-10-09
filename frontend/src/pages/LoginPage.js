@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import {
   Input,
   Button,
@@ -17,6 +18,7 @@ import {
 } from "@chakra-ui/react";
 
 const LoginPage = () => {
+  const { loginUser } = useAuth();
   const [userEmail, setUseremail] = useState("");
   const [userPass, setUserpass] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -52,10 +54,7 @@ const LoginPage = () => {
         config
       );
       console.log(userLoginData.data);
-      localStorage.setItem(
-        "current-user",
-        JSON.stringify(userLoginData.data.data)
-      );
+      loginUser(userLoginData.data.data);
 
       toast({
         title: "Authentication Successful",
@@ -101,8 +100,13 @@ const LoginPage = () => {
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card>
         <CardHeader>
-          <Heading size="md" fontSize="40px" onClick={navigateToAbout}>
-            @VARTA
+          <Heading
+            size="md"
+            fontSize="40px"
+            onClick={navigateToAbout}
+            textAlign="center"
+          >
+            @VartaLaap
           </Heading>
         </CardHeader>
         <CardBody>

@@ -1,6 +1,4 @@
-const currentUser = JSON.parse(localStorage.getItem("current-user"));
-
-export const chatTitle = (chatData) => {
+export const ChatTitle = (chatData, currentUser) => {
   return chatData.isGroup
     ? chatData.chatName
     : chatData.members[0]?._id === currentUser?.id
@@ -8,7 +6,7 @@ export const chatTitle = (chatData) => {
     : chatData.members[0].name;
 };
 
-export const chatDescription = (chatData) => {
+export const ChatDescription = (chatData, currentUser) => {
   return chatData.isGroup
     ? chatData.about
     : chatData.members[0]?._id === currentUser?.id
@@ -16,6 +14,6 @@ export const chatDescription = (chatData) => {
     : chatData.members[0].email;
 };
 
-export const isGroupAdmin = (chatData) => {
+export const IsGroupAdmin = (chatData, currentUser) => {
   return chatData.isGroup && chatData.admin._id === currentUser?.id;
 };

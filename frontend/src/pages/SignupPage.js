@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import {
   Input,
   Button,
@@ -15,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 
 const SignupPage = () => {
+  const { loginUser } = useAuth();
   const [userName, setUsername] = useState("");
   const [userEmail, setUseremail] = useState("");
   const [userPass, setUserpass] = useState("");
@@ -61,14 +63,11 @@ const SignupPage = () => {
         config
       );
       console.log(userLoginData.data);
-      localStorage.setItem(
-        "current-user",
-        JSON.stringify(userLoginData.data.data)
-      );
+      loginUser(userLoginData.data.data);
 
       toast({
         title: "Registration Successful",
-        description: `Welcome to Varta ${userLoginData.data.data.name}`,
+        description: `Welcome to Vartalaap ${userLoginData.data.data.name}`,
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -100,8 +99,8 @@ const SignupPage = () => {
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card>
         <CardHeader>
-          <Heading size="md" fontSize="40px">
-            @VARTA
+          <Heading size="md" fontSize="40px" textAlign="center">
+            @VartaLaap
           </Heading>
         </CardHeader>
         <CardBody>

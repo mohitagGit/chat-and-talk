@@ -22,9 +22,11 @@ import {
   Flex,
   Box,
 } from "@chakra-ui/react";
+import { useAuth } from "../context/AuthContext";
 import BackToHomeButton from "../components/BackToHomeButton";
 
 const NewGroupChatPage = () => {
+  const { currentUser } = useAuth();
   const [searchquery, setSearchquery] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,6 @@ const NewGroupChatPage = () => {
   const navigate = useNavigate();
 
   const searchUser = async () => {
-    const currentUser = JSON.parse(localStorage.getItem("current-user"));
     setUsers([]);
     setLoading(true);
     const config = {
@@ -84,7 +85,6 @@ const NewGroupChatPage = () => {
     };
     console.log(createGroupPayload);
 
-    const currentUser = JSON.parse(localStorage.getItem("current-user"));
     setLoading(true);
     const config = {
       headers: {

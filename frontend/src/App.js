@@ -1,6 +1,6 @@
 import "./App.css";
-import { Route, Routes, useNavigate } from "react-router-dom";
-import { Button } from "@chakra-ui/react";
+import { Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
@@ -13,38 +13,71 @@ import AboutPage from "./pages/AboutPage";
 import CallingPage from "./pages/CallingPage";
 import { NotfoundPage } from "./pages/NotfoundPage";
 import { useEffect } from "react";
-const currentUser = JSON.parse(localStorage.getItem("current-user"));
+import ProtectedRoute from "./routes/ProtectedRoutes";
 
 function App() {
-  const navigate = useNavigate();
-
-  const userSessionCheck = () => {
-    if (currentUser && currentUser.id) {
-      const path = window.location.pathname;
-      navigate(path);
-    } else {
-      navigate("/");
-    }
-  };
-
   useEffect(() => {
-    userSessionCheck();
+    // userSessionCheck();
   }, []);
 
   return (
     <div className="App">
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/chats" element={<ChatListPage />} />
-        <Route path="/chats/:chatId/edit" element={<EditChatPage />} />
-        <Route path="/chats/:chatId/messages" element={<ConversationPage />} />
-        <Route path="/chats/:chatId/call" element={<CallingPage />} />
-        <Route path="/chats/new" element={<NewChatPage />} />
-        <Route path="/chats/group/new" element={<NewGroupChatPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="*" element={<NotfoundPage />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route
+            path="/chats"
+            element={
+              <ProtectedRoute>
+                <ChatListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chats/:chatId/edit"
+            element={
+              <ProtectedRoute>
+                <EditChatPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chats/:chatId/messages"
+            element={
+              <ProtectedRoute>
+                <ConversationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chats/:chatId/call"
+            element={
+              <ProtectedRoute>
+                <CallingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chats/new"
+            element={
+              <ProtectedRoute>
+                <NewChatPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chats/group/new"
+            element={
+              <ProtectedRoute>
+                <NewGroupChatPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="*" element={<NotfoundPage />} />
+        </Routes>
+      </AuthProvider>
     </div>
   );
 }

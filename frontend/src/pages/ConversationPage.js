@@ -15,9 +15,10 @@ import {
 } from "@chakra-ui/react";
 import ScrollableFeed from "react-scrollable-feed";
 
+import { useAuth } from "../context/AuthContext";
 import BackToHomeButton from "../components/BackToHomeButton";
 import UserTyping from "../components/UserTyping";
-import { chatTitle } from "../logics/chatLogic";
+import { ChatTitle } from "../logics/chatLogic";
 import { formatTimeStamp } from "../logics/timeLogic";
 
 // Connect to the Node.js backend
@@ -29,6 +30,7 @@ console.log("backend_url", backend_url);
 const socket = io.connect(backend_url);
 
 const ConversationPage = () => {
+  const { currentUser } = useAuth();
   const { chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [chatData, setChatData] = useState({});
@@ -37,7 +39,6 @@ const ConversationPage = () => {
   const [loading, setLoading] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
   const [typingUserName, setTypingUserName] = useState("");
-  const currentUser = JSON.parse(localStorage.getItem("current-user"));
 
   // to get chat history
   const getChatMessages = async () => {
@@ -154,7 +155,7 @@ const ConversationPage = () => {
         <VStack spacing={1} align="stretch">
           {chatData._id && (
             <HStack spacing={4} p={4} bg="teal" color="white" borderRadius="md">
-              <Avatar name={chatTitle(chatData)} />
+              <Avatar name={ChatTitle(chatData, currentUser)} />
               <Text fontSize="lg" fontWeight="bold">
                 <Link
                   style={{
@@ -162,7 +163,7 @@ const ConversationPage = () => {
                   }}
                   to={`/chats/${chatData._id}/edit`}
                 >
-                  {chatTitle(chatData)}
+                  {ChatTitle(chatData, currentUser)}
                 </Link>
                 <UserTyping
                   isGroup={chatData.isGroup}

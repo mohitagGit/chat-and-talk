@@ -23,10 +23,12 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
+import { useAuth } from "../context/AuthContext";
 import BackToHomeButton from "../components/BackToHomeButton";
-import { chatTitle, chatDescription, isGroupAdmin } from "../logics/chatLogic";
+import { ChatTitle, ChatDescription, IsGroupAdmin } from "../logics/chatLogic";
 
 const EditChatPage = () => {
+  const { currentUser } = useAuth();
   const { chatId } = useParams();
   const [chatData, setChatData] = useState({});
   const [searchUserList, setSearchUserList] = useState([]);
@@ -34,7 +36,6 @@ const EditChatPage = () => {
   const [newSelectedUsers, setNewSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editMade, setEditMade] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem("current-user"));
   const navigate = useNavigate();
 
   const getChatData = async () => {
@@ -96,7 +97,6 @@ const EditChatPage = () => {
   };
 
   const searchUser = async () => {
-    const currentUser = JSON.parse(localStorage.getItem("current-user"));
     setSearchUserList([]);
     setLoading(true);
     const config = {
@@ -169,12 +169,14 @@ const EditChatPage = () => {
         <Card p={4}>
           <BackToHomeButton link={`/chats/${chatId}/messages`} />
           <CardHeader textAlign="center">
-            <Avatar name={chatTitle(chatData)} />
+            <Avatar name={ChatTitle(chatData, currentUser)} />
             <Heading size="sm" fontSize="20px">
-              {chatTitle(chatData)}
+              {ChatTitle(chatData, currentUser)}
             </Heading>
-            <Text fontSize="sm">{chatDescription(chatData)}</Text>
-            <Button onClick={gotoCallPage}>Call {chatTitle(chatData)}</Button>
+            <Text fontSize="sm">{ChatDescription(chatData, currentUser)}</Text>
+            <Button onClick={gotoCallPage}>
+              Call {ChatTitle(chatData, currentUser)}
+            </Button>
             <Divider />
           </CardHeader>
           <CardBody>
@@ -204,7 +206,7 @@ const EditChatPage = () => {
                             : "Member"}
                         </Text>
                       </VStack>
-                      {isGroupAdmin(chatData) &&
+                      {IsGroupAdmin(chatData, currentUser) &&
                         member._id !== currentUser.id &&
                         member._id !== chatData.admin._id && (
                           <IconButton

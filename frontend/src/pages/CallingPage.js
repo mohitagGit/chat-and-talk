@@ -4,7 +4,8 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import Peer from "simple-peer";
 import io from "socket.io-client";
 import "../../src/App.css";
-import { IconButton, Spacer } from "@chakra-ui/react";
+import { IconButton } from "@chakra-ui/react";
+import { useAuth } from "../context/AuthContext";
 import {
   FaVideo,
   FaVideoSlash,
@@ -38,6 +39,7 @@ if (window.location.host === "varta-ls5r.onrender.com") {
 const socket = io.connect(backend_url);
 
 const CallingPage = () => {
+  const { currentUser } = useAuth();
   const { chatId } = useParams();
   const [me, setMe] = useState("");
   const [stream, setStream] = useState();
@@ -55,7 +57,6 @@ const CallingPage = () => {
   const userVideo = useRef();
   const connectionRef = useRef();
   const callAudioRef = useRef(null);
-  const currentUser = JSON.parse(localStorage.getItem("current-user"));
 
   useEffect(() => {
     navigator.mediaDevices
