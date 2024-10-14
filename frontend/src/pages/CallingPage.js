@@ -4,7 +4,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import Peer from "simple-peer";
 import io from "socket.io-client";
 import "../../src/App.css";
-import { IconButton } from "@chakra-ui/react";
+import { Box, IconButton } from "@chakra-ui/react";
 import { useAuth } from "../context/AuthContext";
 import {
   FaVideo,
@@ -12,8 +12,6 @@ import {
   FaMicrophone,
   FaMicrophoneSlash,
   FaPhone,
-  // FaVolumeMute,
-  // FaVolumeUp,
 } from "react-icons/fa";
 import {
   Input,
@@ -44,7 +42,6 @@ const CallingPage = () => {
   const [me, setMe] = useState("");
   const [stream, setStream] = useState();
   const [audioEnabled, setAudioEnabled] = useState(true);
-  // const [volumeEnabled, setVolumeEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [receivingCall, setReceivingCall] = useState(false);
   const [caller, setCaller] = useState("");
@@ -181,13 +178,6 @@ const CallingPage = () => {
     }
   };
 
-  // const toggleAudioVolume = () => {
-  //   if (userVideo.current) {
-  //     userVideo.current.muted = !volumeEnabled;
-  //     setVolumeEnabled(!volumeEnabled);
-  //   }
-  // };
-
   const toggleVideo = () => {
     if (stream) {
       const videoTrack = stream.getVideoTracks()[0];
@@ -284,12 +274,6 @@ const CallingPage = () => {
                 color={videoEnabled ? "teal.500" : "red.500"}
                 onClick={toggleVideo}
               />
-              {/* <IconButton
-                aria-label="Toggle Volume"
-                icon={volumeEnabled ? <FaVolumeUp /> : <FaVolumeMute />}
-                color={volumeEnabled ? "teal.500" : "red.500"}
-                onClick={toggleAudioVolume}
-              /> */}
               {callAccepted && !callEnded && (
                 <IconButton
                   aria-label="End Call"
@@ -302,20 +286,18 @@ const CallingPage = () => {
           </div>
           <div>
             {receivingCall && !callAccepted ? (
-              <div className="caller">
-                <h1>{name} is calling...</h1>
-                <IconButton
-                  aria-label="Accept Call"
-                  icon={<FaPhone />}
-                  color="teal.500"
-                  onClick={answerCall}
-                />
-                <IconButton
-                  aria-label="Decline Call"
-                  icon={<FaPhone />}
-                  color="red.500"
-                  onClick={declineCall}
-                />
+              <div className="video-container">
+                <Box>
+                  <h1>{name} is calling...</h1>
+                </Box>
+                <Box>
+                  <Button colorScheme="green" m={4} onClick={answerCall}>
+                    Accept
+                  </Button>
+                  <Button colorScheme="red" m={4} onClick={declineCall} ml={2}>
+                    Decline
+                  </Button>
+                </Box>
               </div>
             ) : null}
           </div>
