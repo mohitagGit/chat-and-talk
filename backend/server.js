@@ -88,27 +88,33 @@ io.on("connection", (socket) => {
   });
 
   // idea 2
-  socket.emit("me", socket.id);
+  socket.emit("ME", socket.id);
 
   socket.on("disconnect", () => {
     socket.broadcast.emit("callEnded");
   });
 
-  socket.on("callUser", (data) => {
-    console.log("callUser: ", data);
-    io.to(data.userToCall).emit("callUser", {
+  socket.on("CALL_USER", (data) => {
+    console.log("CALL_USER: ", data);
+    io.to(data.userToCall).emit("RECEIVE_CALL", {
       signal: data.signalData,
       from: data.from,
       name: data.name,
     });
   });
 
-  socket.on("answerCall", (data) => {
-    console.log("answerCall: ", data);
-    io.to(data.to).emit("callAccepted", data.signal);
+  socket.on("ANSWER_CALL", (data) => {
+    console.log("ANSWER_CALL: ", data);
+    io.to(data.to).emit("CALL_ACCEPTED", data.signal);
   });
 
-  socket.on("decline-call", (data) => {
-    io.to(data.target).emit("call-declined", { from: socket.id });
+  socket.on("DECLINE_CALL", (data) => {
+    console.log("DECLINE_CALL: ", data);
+    io.to(data.to).emit("CALL_DECLINED", { from: data.from.name });
+  });
+
+  socket.on("END_CALL", (data) => {
+    console.log("END_CALL: ", data);
+    io.to(data.to).emit("CALL_ENDED", { from: data.from.name });
   });
 });

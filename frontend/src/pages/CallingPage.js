@@ -22,6 +22,7 @@ import {
   InputLeftAddon,
   InputRightAddon,
   Center,
+  useToast,
 } from "@chakra-ui/react";
 import { PhoneIcon } from "@chakra-ui/icons";
 import process from "process";
@@ -54,6 +55,7 @@ const CallingPage = () => {
   const userVideo = useRef();
   const connectionRef = useRef();
   const callAudioRef = useRef(null);
+  const toast = useToast();
 
   useEffect(() => {
     navigator.mediaDevices
@@ -65,12 +67,12 @@ const CallingPage = () => {
         }
       });
 
-    socket.on("me", (id) => {
+    socket.on("ME", (id) => {
       console.log("my id:" + id);
       setMe(id);
     });
 
-    socket.on("callUser", (data) => {
+    socket.on("RECEIVE_CALL", (data) => {
       console.log("User calling data: ", data);
       setReceivingCall(true);
       setCaller(data.from);
@@ -79,11 +81,28 @@ const CallingPage = () => {
       playIncomingCallAudio();
     });
 
-    socket.on("call-declined", () => {
+    socket.on("CALL_DECLINED", (data) => {
       console.log("Call declined by the other user");
-      if (myVideo.current) {
-        myVideo.current.destroy();
-      }
+      setCallAccepted(false);
+      toast({
+        title: "Call Declined",
+        description: `Call ended by ${data.from}`,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    });
+
+    socket.on("CALL_ENDED", (data) => {
+      console.log("Call disconnected by the other user");
+      setCallEnded(true);
+      toast({
+        title: "Call Ended",
+        description: `Call ended by ${data.from}`,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     });
 
     // Clean up the stream on page change
@@ -120,7 +139,7 @@ const CallingPage = () => {
       stream: stream,
     });
     peer.on("signal", (data) => {
-      socket.emit("callUser", {
+      socket.emit("CALL_USER", {
         userToCall: id,
         signalData: data,
         from: me,
@@ -130,7 +149,7 @@ const CallingPage = () => {
     peer.on("stream", (remoteStream) => {
       userVideo.current.srcObject = remoteStream;
     });
-    socket.on("callAccepted", (signal) => {
+    socket.on("CALL_ACCEPTED", (signal) => {
       setCallAccepted(true);
       peer.signal(signal);
       console.log("Call accepted: ", signal);
@@ -148,7 +167,7 @@ const CallingPage = () => {
       stream: stream,
     });
     peer.on("signal", (data) => {
-      socket.emit("answerCall", { signal: data, to: caller });
+      socket.emit("ANSWER_CALL", { signal: data, to: caller });
     });
     peer.on("stream", (remoteStream) => {
       userVideo.current.srcObject = remoteStream;
@@ -160,13 +179,14 @@ const CallingPage = () => {
 
   const declineCall = () => {
     // Notify the caller that the call is declined
-    // socket.emit("decline-call", { target: incomingCall.from });
+    socket.emit("DECLINE_CALL", { to: caller, from: currentUser });
     setReceivingCall(false);
     setCallAccepted(false);
     pauseIncomingCallAudio();
   };
 
   const leaveCall = () => {
+    socket.emit("END_CALL", { to: caller, from: currentUser });
     setCallEnded(true);
     connectionRef.current.destroy();
   };
