@@ -20,6 +20,7 @@ import BackToHomeButton from "../components/BackToHomeButton";
 import UserTyping from "../components/UserTyping";
 import { ChatTitle } from "../logics/chatLogic";
 import { formatTimeStamp } from "../logics/timeLogic";
+import ConversationLoadingSkeleton from "../loading/ConversationLoadingSkeleton";
 
 // Connect to the Node.js backend
 var backend_url = "http://localhost:4000";
@@ -156,7 +157,7 @@ const ConversationPage = () => {
           {chatData._id && (
             <HStack spacing={4} p={4} bg="teal" color="white" borderRadius="md">
               <Avatar name={ChatTitle(chatData, currentUser)} />
-              <Text fontSize="lg" fontWeight="bold">
+              <Box fontSize="lg" fontWeight="bold">
                 <Link
                   style={{
                     textDecoration: "underline",
@@ -169,7 +170,7 @@ const ConversationPage = () => {
                   isGroup={chatData.isGroup}
                   typingUserName={typingUserName}
                 />
-              </Text>
+              </Box>
             </HStack>
           )}
           <Box
@@ -180,38 +181,44 @@ const ConversationPage = () => {
             maxH="70vh"
             minH="70vh"
           >
-            <ScrollableFeed>
-              {messages.map((msg, index) => (
-                <HStack
-                  key={msg._id}
-                  align="flex-start"
-                  mb={2}
-                  justify={
-                    msg.sender._id === currentUser.id
-                      ? "flex-end"
-                      : "flex-start"
-                  }
-                >
-                  {/* {
+            {messages.length ? (
+              <ScrollableFeed>
+                {messages.map((msg, index) => (
+                  <HStack
+                    key={msg._id}
+                    align="flex-start"
+                    mb={2}
+                    justify={
+                      msg.sender._id === currentUser.id
+                        ? "flex-end"
+                        : "flex-start"
+                    }
+                  >
+                    {/* {
                   const showAvatar = index === 0 || messages[index - 1].user !== message.user
                 } */}
-                  {msg.sender !== currentUser.id && (
-                    <Avatar size="xs" name={msg.sender.name} />
-                  )}
-                  <VStack
-                    align="stretch"
-                    bg={msg.sender === currentUser.id ? "blue.100" : "gray.100"}
-                    borderRadius="md"
-                    p={2}
-                  >
-                    <Text fontSize="xs">{msg.message}</Text>
-                    <Text fontSize="xs" color="gray.500">
-                      {formatTimeStamp(msg.updatedAt)}
-                    </Text>
-                  </VStack>
-                </HStack>
-              ))}
-            </ScrollableFeed>
+                    {msg.sender !== currentUser.id && (
+                      <Avatar size="xs" name={msg.sender.name} />
+                    )}
+                    <VStack
+                      align="stretch"
+                      bg={
+                        msg.sender === currentUser.id ? "blue.100" : "gray.100"
+                      }
+                      borderRadius="md"
+                      p={2}
+                    >
+                      <Text fontSize="xs">{msg.message}</Text>
+                      <Text fontSize="xs" color="gray.500">
+                        {formatTimeStamp(msg.updatedAt)}
+                      </Text>
+                    </VStack>
+                  </HStack>
+                ))}
+              </ScrollableFeed>
+            ) : (
+              <ConversationLoadingSkeleton />
+            )}
           </Box>
 
           {/* message input box */}

@@ -26,6 +26,7 @@ import { DeleteIcon } from "@chakra-ui/icons";
 import { useAuth } from "../context/AuthContext";
 import BackToHomeButton from "../components/BackToHomeButton";
 import { ChatTitle, ChatDescription, IsGroupAdmin } from "../logics/chatLogic";
+import { EditChatLoadingSkeleton } from "../loading/EditChatLoadingSkeleton";
 
 const EditChatPage = () => {
   const { currentUser } = useAuth();
@@ -165,140 +166,144 @@ const EditChatPage = () => {
 
   return (
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
-      {chatData._id ? (
-        <Card p={4}>
-          <BackToHomeButton link={`/chats/${chatId}/messages`} />
-          <CardHeader textAlign="center">
-            <Avatar name={ChatTitle(chatData, currentUser)} />
-            <Heading size="sm" fontSize="20px">
-              {ChatTitle(chatData, currentUser)}
-            </Heading>
-            <Text fontSize="sm">{ChatDescription(chatData, currentUser)}</Text>
-            <Button onClick={gotoCallPage}>
-              Call {ChatTitle(chatData, currentUser)}
-            </Button>
-            <Divider />
-          </CardHeader>
-          <CardBody>
-            <Stack bg="" w="100%" p={2} color="" spacing={3}>
-              {chatData.isGroup && chatData.members.length && (
-                <>
-                  <Heading size="sm" fontSize="18px">
-                    {chatData.members.length} Members
-                  </Heading>
-                  <Divider />
-                  {chatData.members.map((member, index) => (
-                    <HStack
-                      bg="gray.50"
-                      key={member._id}
-                      p={2}
-                      borderRadius="md"
-                      boxShadow="sm"
-                    >
-                      <Avatar size="xs" name={member.name} />
-                      <VStack align="start" spacing={0} w="100%">
-                        <Text fontSize="sm">
-                          {member.name} {<>({member.email})</>}
-                        </Text>
-                        <Text fontSize="xs">
-                          {member._id === chatData.admin._id
-                            ? "Admin"
-                            : "Member"}
-                        </Text>
-                      </VStack>
-                      {IsGroupAdmin(chatData, currentUser) &&
-                        member._id !== currentUser.id &&
-                        member._id !== chatData.admin._id && (
-                          <IconButton
-                            icon={<DeleteIcon />}
-                            colorScheme="red"
-                            size="xs"
-                            onClick={() => removeMemberHandler(member)}
-                            aria-label="Remove user"
-                          />
-                        )}
-                    </HStack>
-                  ))}
-                </>
-              )}
-            </Stack>
-          </CardBody>
-          {chatData.isGroup && (
-            <CardFooter>
-              {newSelectedUsers.length ? (
-                <Stack w="100%" p={4} spacing={5} direction="row">
-                  {newSelectedUsers.map((selUser) => (
-                    <>
-                      <Avatar key={selUser._id} name={selUser.name}>
-                        <AvatarBadge boxSize="1.25em" bg="gray"></AvatarBadge>
-                      </Avatar>
-                    </>
-                  ))}
-                </Stack>
-              ) : (
-                ""
-              )}
-              <Stack
-                bg=""
-                w="100%"
-                p={4}
-                color=""
-                spacing={5}
-                direction="column"
-              >
-                <InputGroup size="md">
-                  <Input
-                    placeholder="Name or email"
-                    type={"text"}
-                    required
-                    onKeyDown={handleEnterKeyPress}
-                    onChange={(e) => setSearchquery(e.target.value)}
-                  />
-                  <InputRightElement width="4.5rem">
-                    <Button
-                      h="1.75rem"
-                      size="sm"
-                      colorScheme="green"
-                      onClick={() => searchUser()}
-                    >
-                      search
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-                {searchUserList.length
-                  ? searchUserList.map((user, index) => (
-                      <Stack
-                        key={user._id}
-                        bg="teal"
-                        w="100%"
-                        p={3}
-                        color="white"
-                        spacing={1}
-                        direction="column"
+      <Card p={4}>
+        <BackToHomeButton link={`/chats/${chatId}/messages`} />
+        {chatData._id ? (
+          <>
+            <CardHeader textAlign="center">
+              <Avatar name={ChatTitle(chatData, currentUser)} />
+              <Heading size="sm" fontSize="20px">
+                {ChatTitle(chatData, currentUser)}
+              </Heading>
+              <Text fontSize="sm">
+                {ChatDescription(chatData, currentUser)}
+              </Text>
+              <Button onClick={gotoCallPage}>
+                Call {ChatTitle(chatData, currentUser)}
+              </Button>
+              <Divider />
+            </CardHeader>
+            <CardBody>
+              <Stack bg="" w="100%" p={2} color="" spacing={3}>
+                {chatData.isGroup && chatData.members.length && (
+                  <>
+                    <Heading size="sm" fontSize="18px">
+                      {chatData.members.length} Members
+                    </Heading>
+                    <Divider />
+                    {chatData.members.map((member, index) => (
+                      <HStack
+                        bg="gray.50"
+                        key={member._id}
+                        p={2}
+                        borderRadius="md"
+                        boxShadow="sm"
                       >
-                        <Box fontSize="sm">
-                          {user.name}({user.email})
-                        </Box>
-                        {!user.existing && (
-                          <Button
-                            colorScheme="green"
-                            size="xs"
-                            variant="outline"
-                            onClick={() => addMemberHandler(user)}
-                          >
-                            Add
-                          </Button>
-                        )}
-                      </Stack>
-                    ))
-                  : ""}
+                        <Avatar size="xs" name={member.name} />
+                        <VStack align="start" spacing={0} w="100%">
+                          <Text fontSize="sm">
+                            {member.name} {<>({member.email})</>}
+                          </Text>
+                          <Text fontSize="xs">
+                            {member._id === chatData.admin._id
+                              ? "Admin"
+                              : "Member"}
+                          </Text>
+                        </VStack>
+                        {IsGroupAdmin(chatData, currentUser) &&
+                          member._id !== currentUser.id &&
+                          member._id !== chatData.admin._id && (
+                            <IconButton
+                              icon={<DeleteIcon />}
+                              colorScheme="red"
+                              size="xs"
+                              onClick={() => removeMemberHandler(member)}
+                              aria-label="Remove user"
+                            />
+                          )}
+                      </HStack>
+                    ))}
+                  </>
+                )}
               </Stack>
-            </CardFooter>
-          )}
-        </Card>
-      ) : (
-        <Card>Loading...</Card>
-      )}
+            </CardBody>
+            {chatData.isGroup && (
+              <CardFooter>
+                {newSelectedUsers.length ? (
+                  <Stack w="100%" p={4} spacing={5} direction="row">
+                    {newSelectedUsers.map((selUser) => (
+                      <>
+                        <Avatar key={selUser._id} name={selUser.name}>
+                          <AvatarBadge boxSize="1.25em" bg="gray"></AvatarBadge>
+                        </Avatar>
+                      </>
+                    ))}
+                  </Stack>
+                ) : (
+                  ""
+                )}
+                <Stack
+                  bg=""
+                  w="100%"
+                  p={4}
+                  color=""
+                  spacing={5}
+                  direction="column"
+                >
+                  <InputGroup size="md">
+                    <Input
+                      placeholder="Name or email"
+                      type={"text"}
+                      required
+                      onKeyDown={handleEnterKeyPress}
+                      onChange={(e) => setSearchquery(e.target.value)}
+                    />
+                    <InputRightElement width="4.5rem">
+                      <Button
+                        h="1.75rem"
+                        size="sm"
+                        colorScheme="green"
+                        onClick={() => searchUser()}
+                      >
+                        search
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                  {searchUserList.length
+                    ? searchUserList.map((user, index) => (
+                        <Stack
+                          key={user._id}
+                          bg="teal"
+                          w="100%"
+                          p={3}
+                          color="white"
+                          spacing={1}
+                          direction="column"
+                        >
+                          <Box fontSize="sm">
+                            {user.name}({user.email})
+                          </Box>
+                          {!user.existing && (
+                            <Button
+                              colorScheme="green"
+                              size="xs"
+                              variant="outline"
+                              onClick={() => addMemberHandler(user)}
+                            >
+                              Add
+                            </Button>
+                          )}
+                        </Stack>
+                      ))
+                    : ""}
+                </Stack>
+              </CardFooter>
+            )}
+          </>
+        ) : (
+          <EditChatLoadingSkeleton />
+        )}
+      </Card>
     </Flex>
   );
 };

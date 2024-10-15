@@ -17,6 +17,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { ChatTitle } from "../logics/chatLogic";
 import { formatTimeStamp } from "../logics/timeLogic";
+import ChatLoadingSkeleton from "../loading/ChatLoadingSkeleton";
 
 const ChatListPage = () => {
   const { logoutUser, currentUser } = useAuth();
@@ -111,16 +112,16 @@ const ChatListPage = () => {
           borderBottomWidth={1}
           borderBottomColor="gray.200"
         >
-          <VStack
-            align="stretch"
-            spacing={2}
-            p={0}
-            w="100%"
-            maxW="lg"
-            mx="auto"
-          >
-            {chats.length &&
-              chats.map((chat) => (
+          {chats.length ? (
+            <VStack
+              align="stretch"
+              spacing={2}
+              p={0}
+              w="100%"
+              maxW="lg"
+              mx="auto"
+            >
+              {chats.map((chat) => (
                 <HStack
                   key={chat._id}
                   w="100%"
@@ -163,7 +164,10 @@ const ChatListPage = () => {
                   </VStack>
                 </HStack>
               ))}
-          </VStack>
+            </VStack>
+          ) : (
+            <ChatLoadingSkeleton />
+          )}
         </Box>
         <Box height="10vh" textAlign="center">
           <Box w="100%" p={4}>

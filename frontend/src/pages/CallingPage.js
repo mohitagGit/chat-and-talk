@@ -86,7 +86,7 @@ const CallingPage = () => {
       setCallAccepted(false);
       toast({
         title: "Call Declined",
-        description: `Call ended by ${data.from}`,
+        description: `Call declined by ${data.from}`,
         status: "error",
         duration: 3000,
         isClosable: true,
