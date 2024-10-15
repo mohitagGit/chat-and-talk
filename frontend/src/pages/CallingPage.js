@@ -74,11 +74,13 @@ const CallingPage = () => {
 
     socket.on("RECEIVE_CALL", (data) => {
       console.log("User calling data: ", data);
-      setReceivingCall(true);
-      setCaller(data.from);
-      setName(data.name);
-      setCallerSignal(data.signal);
-      playIncomingCallAudio();
+      if (data.initiator_id !== currentUser.id) {
+        setReceivingCall(true);
+        setCaller(data.from);
+        setName(data.name);
+        setCallerSignal(data.signal);
+        playIncomingCallAudio();
+      }
     });
 
     socket.on("CALL_DECLINED", (data) => {
@@ -105,11 +107,13 @@ const CallingPage = () => {
       });
     });
 
+    socket.emit("JOINED_CALL_ROOM", chatId);
+
     // Clean up the stream on page change
     return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
+      socket.emit("END_CALL", { to: caller, from: currentUser });
+      socket.off("RECEIVE_CALL");
+      socket.off("CALL_ACCEPTED");
     };
   }, []);
 
@@ -132,7 +136,7 @@ const CallingPage = () => {
     }
   };
 
-  const callUserHandler = (id) => {
+  const callUserHandler = () => {
     const peer = new Peer({
       initiator: true,
       trickle: false,
@@ -140,9 +144,9 @@ const CallingPage = () => {
     });
     peer.on("signal", (data) => {
       socket.emit("CALL_USER", {
-        userToCall: id,
+        userToCall: chatId,
         signalData: data,
-        from: me,
+        initiator_id: currentUser.id,
         name: currentUser.name,
       });
     });
@@ -211,42 +215,6 @@ const CallingPage = () => {
       <Card p={4}>
         <BackToHomeButton link={`/chats/${chatId}/edit`} />
         <div className="container">
-          <div className="myId">
-            <CopyToClipboard text={me} style={{ marginBottom: "1rem" }}>
-              <Button size="md" color="green">
-                Click to Copy ID: {me}
-              </Button>
-            </CopyToClipboard>
-
-            <InputGroup size="md">
-              <InputLeftAddon>Call to: </InputLeftAddon>
-              <Input
-                variant="filled"
-                value={idToCall}
-                onChange={(e) => setIdToCall(e.target.value)}
-              />
-              <InputRightAddon>
-                {callAccepted && !callEnded ? (
-                  <Button
-                    size="md"
-                    variant="link"
-                    colorScheme="red"
-                    onClick={leaveCall}
-                  >
-                    End
-                  </Button>
-                ) : (
-                  <Button
-                    color="primary"
-                    aria-label="call"
-                    onClick={() => callUserHandler(idToCall)}
-                  >
-                    <PhoneIcon fontSize="large" />
-                  </Button>
-                )}
-              </InputRightAddon>
-            </InputGroup>
-          </div>
           <div className="video-container">
             <div className="video">
               {stream && (
@@ -294,15 +262,36 @@ const CallingPage = () => {
                 color={videoEnabled ? "teal.500" : "red.500"}
                 onClick={toggleVideo}
               />
-              {callAccepted && !callEnded && (
+              {/* {callAccepted && !callEnded && (
                 <IconButton
                   aria-label="End Call"
                   icon={<FaPhone />}
                   color="red.500"
                   onClick={leaveCall}
                 />
-              )}
+              )} */}
             </>
+          </div>
+
+          <div className="myId">
+            {callAccepted && !callEnded ? (
+              <Button
+                size="md"
+                variant="link"
+                colorScheme="red"
+                onClick={leaveCall}
+              >
+                End
+              </Button>
+            ) : (
+              <Button
+                color="primary"
+                aria-label="call"
+                onClick={() => callUserHandler(idToCall)}
+              >
+                <PhoneIcon fontSize="large" />
+              </Button>
+            )}
           </div>
           <div>
             {receivingCall && !callAccepted ? (

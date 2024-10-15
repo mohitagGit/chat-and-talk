@@ -94,11 +94,17 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("callEnded");
   });
 
+  socket.on("JOINED_CALL_ROOM", (chatId) => {
+    socket.join(chatId);
+    console.log("User Joined Chat Room: " + chatId);
+  });
+
   socket.on("CALL_USER", (data) => {
     console.log("CALL_USER: ", data);
     io.to(data.userToCall).emit("RECEIVE_CALL", {
       signal: data.signalData,
-      from: data.from,
+      from: socket.id,
+      initiator_id: data.initiator_id,
       name: data.name,
     });
   });
