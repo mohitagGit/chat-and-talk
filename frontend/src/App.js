@@ -1,6 +1,7 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { SocketProvider } from "./context/SocketContext";
 
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
@@ -23,60 +24,62 @@ function App() {
   return (
     <div className="App">
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route
-            path="/chats"
-            element={
-              <ProtectedRoute>
-                <ChatListPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chats/:chatId/edit"
-            element={
-              <ProtectedRoute>
-                <EditChatPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chats/:chatId/messages"
-            element={
-              <ProtectedRoute>
-                <ConversationPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chats/:chatId/call"
-            element={
-              <ProtectedRoute>
-                <CallingPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chats/new"
-            element={
-              <ProtectedRoute>
-                <NewChatPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chats/group/new"
-            element={
-              <ProtectedRoute>
-                <NewGroupChatPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="*" element={<NotfoundPage />} />
-        </Routes>
+        <SocketProvider>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route
+              path="/chats"
+              element={
+                <ProtectedRoute>
+                  <ChatListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chats/:chatId/edit"
+              element={
+                <ProtectedRoute>
+                  <EditChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chats/:chatId/messages"
+              element={
+                <ProtectedRoute>
+                  <ConversationPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chats/:chatId/call"
+              element={
+                <ProtectedRoute>
+                  <CallingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chats/new"
+              element={
+                <ProtectedRoute>
+                  <NewChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chats/group/new"
+              element={
+                <ProtectedRoute>
+                  <NewGroupChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="*" element={<NotfoundPage />} />
+          </Routes>
+        </SocketProvider>
       </AuthProvider>
     </div>
   );
