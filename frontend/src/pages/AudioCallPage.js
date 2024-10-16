@@ -9,7 +9,7 @@ import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { Button, Flex, Card, Center, useToast } from "@chakra-ui/react";
 import { PhoneIcon } from "@chakra-ui/icons";
 import process from "process";
-import BackToHomeButton from "../components/BackToHomeButton";
+import BackButton from "../components/BackButton";
 import incomingCallAudioFile from "../sounds/incoming_call.mp3";
 window.process = process;
 
@@ -30,9 +30,12 @@ const AudioCallPage = () => {
   const [callerSignal, setCallerSignal] = useState();
   const [callAccepted, setCallAccepted] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
+  const [isTalking, setIsTalking] = useState(false);
   const [name, setName] = useState("");
   const connectionRef = useRef();
   const callAudioRef = useRef(null);
+  const analyserRef = useRef(null);
+  const audioContextRef = useRef(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -131,6 +134,7 @@ const AudioCallPage = () => {
       });
     });
     peer.on("stream", (remoteAudio) => {
+      setupAudioAnalysis(remoteAudio);
       playRemoteAudioStream(remoteAudio);
     });
     socket.on("CALL_ACCEPTED", (signal) => {
@@ -153,6 +157,7 @@ const AudioCallPage = () => {
       socket.emit("ANSWER_CALL", { signal: data, to: caller });
     });
     peer.on("stream", (remoteAudio) => {
+      setupAudioAnalysis(remoteAudio);
       playRemoteAudioStream(remoteAudio);
     });
     peer.signal(callerSignal);
@@ -180,10 +185,52 @@ const AudioCallPage = () => {
     }
   };
 
+  // Function to analyze the audio stream and detect talking
+  const setupAudioAnalysis = (userStream) => {
+    if (audioContextRef.current) return; // Only set up once
+
+    // Create AudioContext and AnalyserNode
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+    const analyser = audioContext.createAnalyser();
+    const source = audioContext.createMediaStreamSource(userStream);
+    source.connect(analyser);
+    analyser.fftSize = 512;
+
+    // Allocate array to hold audio data
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    audioContextRef.current = audioContext;
+    analyserRef.current = analyser;
+
+    // Function to analyze audio volume
+    const detectTalking = () => {
+      if (audioEnabled) {
+        analyser.getByteFrequencyData(dataArray);
+        const sum = dataArray.reduce((a, b) => a + b, 0); // Sum of frequencies
+        const averageVolume = sum / dataArray.length; // Average audio level
+
+        // Determine if the user is talking based on average volume
+        if (averageVolume > 30) {
+          setIsTalking(true);
+        } else {
+          setIsTalking(false);
+        }
+
+        // Continue to monitor audio data
+        requestAnimationFrame(detectTalking);
+      } else {
+        setIsTalking(false);
+      }
+    };
+
+    // Start monitoring audio levels
+    detectTalking();
+  };
+
   return (
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card p={4}>
-        <BackToHomeButton link={`/chats/${chatId}/edit`} />
+        <BackButton link={`/chats/${chatId}/edit`} />
         <div className="container">
           <div className="video-container">
             <div className="video">
@@ -199,13 +246,9 @@ const AudioCallPage = () => {
               {callAccepted && !callEnded ? (
                 <>
                   <Center
-                    style={{
-                      border: "5px solid green",
-                      borderRadius: "100px",
-                      height: "125px",
-                      marginLeft: "75px",
-                      marginRight: "75px",
-                    }}
+                    className={`talking-indicator ${
+                      isTalking ? "talking" : ""
+                    }`}
                   >
                     <Avatar name={name} />
                   </Center>
