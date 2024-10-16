@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import Peer from "simple-peer";
 import io from "socket.io-client";
 import "../../src/App.css";
@@ -11,19 +10,8 @@ import {
   FaVideoSlash,
   FaMicrophone,
   FaMicrophoneSlash,
-  FaPhone,
 } from "react-icons/fa";
-import {
-  Input,
-  Button,
-  Flex,
-  Card,
-  InputGroup,
-  InputLeftAddon,
-  InputRightAddon,
-  Center,
-  useToast,
-} from "@chakra-ui/react";
+import { Button, Flex, Card, Center, useToast } from "@chakra-ui/react";
 import { PhoneIcon } from "@chakra-ui/icons";
 import process from "process";
 import BackButton from "../components/BackButton";
@@ -40,7 +28,6 @@ const socket = io.connect(backend_url);
 const VideoCallPage = () => {
   const { currentUser } = useAuth();
   const { chatId } = useParams();
-  const [me, setMe] = useState("");
   const [stream, setStream] = useState();
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
@@ -48,7 +35,6 @@ const VideoCallPage = () => {
   const [caller, setCaller] = useState("");
   const [callerSignal, setCallerSignal] = useState();
   const [callAccepted, setCallAccepted] = useState(false);
-  const [idToCall, setIdToCall] = useState("");
   const [callEnded, setCallEnded] = useState(false);
   const [name, setName] = useState("");
   const myVideo = useRef();
@@ -66,11 +52,6 @@ const VideoCallPage = () => {
           myVideo.current.srcObject = currentStream;
         }
       });
-
-    socket.on("ME", (id) => {
-      console.log("my id:" + id);
-      setMe(id);
-    });
 
     socket.on("RECEIVE_CALL", (data) => {
       console.log("User calling data: ", data);
@@ -287,7 +268,7 @@ const VideoCallPage = () => {
               <Button
                 color="primary"
                 aria-label="call"
-                onClick={() => callUserHandler(idToCall)}
+                onClick={() => callUserHandler()}
               >
                 <PhoneIcon fontSize="large" />
               </Button>
