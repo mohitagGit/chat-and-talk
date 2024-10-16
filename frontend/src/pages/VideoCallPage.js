@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { PhoneIcon } from "@chakra-ui/icons";
 import process from "process";
-import BackToHomeButton from "../components/BackToHomeButton";
+import BackButton from "../components/BackButton";
 import incomingCallAudioFile from "../sounds/incoming_call.mp3";
 window.process = process;
 
@@ -213,7 +213,7 @@ const VideoCallPage = () => {
   return (
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card p={4}>
-        <BackToHomeButton link={`/chats/${chatId}/edit`} />
+        <BackButton link={`/chats/${chatId}/edit`} />
         <div className="container">
           <div className="video-container">
             <div className="video">

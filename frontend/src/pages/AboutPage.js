@@ -7,13 +7,13 @@ import {
   Stack,
   Flex,
 } from "@chakra-ui/react";
-import BackToHomeButton from "../components/BackToHomeButton";
+import BackButton from "../components/BackButton";
 
 function AboutPage() {
   return (
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card p={4}>
-        <BackToHomeButton />
+        <BackButton />
         <CardHeader>
           <Heading size="md" fontSize="30px">
             Vartalaap v1.1.0

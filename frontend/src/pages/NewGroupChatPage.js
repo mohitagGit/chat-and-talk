@@ -23,7 +23,7 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { useAuth } from "../context/AuthContext";
-import BackToHomeButton from "../components/BackToHomeButton";
+import BackButton from "../components/BackButton";
 
 const NewGroupChatPage = () => {
   const { currentUser } = useAuth();
@@ -135,7 +135,7 @@ const NewGroupChatPage = () => {
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card p={4}>
         <Box boxShadow="sm" borderRadius="sm">
-          <BackToHomeButton />
+          <BackButton />
           <CardHeader>
             <Heading size="md" fontSize="30px">
               New Group

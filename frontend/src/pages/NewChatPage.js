@@ -17,7 +17,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { useAuth } from "../context/AuthContext";
-import BackToHomeButton from "../components/BackToHomeButton";
+import BackButton from "../components/BackButton";
 
 const NewChatPage = () => {
   const { currentUser } = useAuth();
@@ -103,7 +103,7 @@ const NewChatPage = () => {
   return (
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card p={4}>
-        <BackToHomeButton />
+        <BackButton />
         <Box boxShadow="sm" borderRadius="sm">
           <CardHeader>
             <Heading size="md" fontSize="30px">

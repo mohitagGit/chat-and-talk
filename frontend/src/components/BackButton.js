@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const BackToHomeButton = ({ link }) => {
+const BackButton = ({ link }) => {
   const backLink = link ? link : "/chats";
   return (
     <div>
@@ -20,4 +20,4 @@ const BackToHomeButton = ({ link }) => {
   );
 };
 
-export default BackToHomeButton;
+export default BackButton;

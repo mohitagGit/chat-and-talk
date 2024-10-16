@@ -24,7 +24,7 @@ import {
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useAuth } from "../context/AuthContext";
-import BackToHomeButton from "../components/BackToHomeButton";
+import BackButton from "../components/BackButton";
 import { ChatTitle, ChatDescription, IsGroupAdmin } from "../logics/chatLogic";
 import { EditChatLoadingSkeleton } from "../loading/EditChatLoadingSkeleton";
 
@@ -171,7 +171,7 @@ const EditChatPage = () => {
   return (
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card p={4}>
-        <BackToHomeButton link={`/chats/${chatId}/messages`} />
+        <BackButton link={`/chats/${chatId}/messages`} />
         {chatData._id ? (
           <>
             <CardHeader textAlign="center">

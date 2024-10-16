@@ -16,7 +16,7 @@ import {
 import ScrollableFeed from "react-scrollable-feed";
 
 import { useAuth } from "../context/AuthContext";
-import BackToHomeButton from "../components/BackToHomeButton";
+import BackButton from "../components/BackButton";
 import UserTyping from "../components/UserTyping";
 import { ChatTitle } from "../logics/chatLogic";
 import { formatTimeStamp } from "../logics/timeLogic";
@@ -152,7 +152,7 @@ const ConversationPage = () => {
   return (
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card p={4}>
-        <BackToHomeButton />
+        <BackButton />
         <VStack spacing={1} align="stretch">
           {chatData._id && (
             <HStack spacing={4} p={4} bg="teal" color="white" borderRadius="md">
