@@ -11,7 +11,8 @@ import ConversationPage from "./pages/ConversationPage";
 import NewChatPage from "./pages/NewChatPage";
 import NewGroupChatPage from "./pages/NewGroupChatPage";
 import AboutPage from "./pages/AboutPage";
-import CallingPage from "./pages/CallingPage";
+import VideoCallPage from "./pages/VideoCallPage";
+import AudioCallPage from "./pages/AudioCallPage";
 import { NotfoundPage } from "./pages/NotfoundPage";
 import { useEffect } from "react";
 import ProtectedRoute from "./routes/ProtectedRoutes";
@@ -53,10 +54,18 @@ function App() {
               }
             />
             <Route
-              path="/chats/:chatId/call"
+              path="/call/:chatId/video"
               element={
                 <ProtectedRoute>
-                  <CallingPage />
+                  <VideoCallPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/call/:chatId/audio"
+              element={
+                <ProtectedRoute>
+                  <AudioCallPage />
                 </ProtectedRoute>
               }
             />

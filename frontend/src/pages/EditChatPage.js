@@ -155,8 +155,12 @@ const EditChatPage = () => {
     }
   };
 
-  const gotoCallPage = () => {
-    navigate(`/chats/${chatId}/call`);
+  const navigateToAudioCall = () => {
+    navigate(`/call/${chatId}/audio`);
+  };
+
+  const navigateToVideoCall = () => {
+    navigate(`/call/${chatId}/video`);
   };
 
   useEffect(() => {
@@ -178,9 +182,8 @@ const EditChatPage = () => {
               <Text fontSize="sm">
                 {ChatDescription(chatData, currentUser)}
               </Text>
-              <Button onClick={gotoCallPage}>
-                Call {ChatTitle(chatData, currentUser)}
-              </Button>
+              <Button onClick={navigateToAudioCall}>Audio</Button>
+              <Button onClick={navigateToVideoCall}>Video</Button>
               <Divider />
             </CardHeader>
             <CardBody>
