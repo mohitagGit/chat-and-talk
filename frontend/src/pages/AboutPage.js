@@ -6,6 +6,7 @@ import {
   CardBody,
   Stack,
   Flex,
+  Link,
 } from "@chakra-ui/react";
 import BackButton from "../components/BackButton";
 
@@ -22,8 +23,16 @@ function AboutPage() {
         <CardBody>
           <Stack bg="" w="100%" p={4} color="" spacing={5}>
             <div>
-              This Varta(Vartalaap) app is designed by Mohit for chatting.
-              Developed using ReactJs, Chakra-UI, NodeJs and MongoDB
+              This Vartalaap app is designed by{" "}
+              <Link
+                href="https://github.com/mohitagGit"
+                color="teal.500"
+                isExternal
+              >
+                Mohit{" "}
+              </Link>
+              for Audio/Video call and messaging. Developed using ReactJs,
+              Chakra-UI, NodeJs and MongoDB
             </div>
           </Stack>
         </CardBody>

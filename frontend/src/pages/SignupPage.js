@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import vartaLogo from "../img/logo.png";
 import {
   Input,
   Button,
@@ -13,6 +14,8 @@ import {
   CardBody,
   CardFooter,
   Flex,
+  Image,
+  Box,
 } from "@chakra-ui/react";
 
 const SignupPage = () => {
@@ -99,6 +102,17 @@ const SignupPage = () => {
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card>
         <CardHeader>
+          <Box
+            display="flex"
+            justifyContent="center" // Center horizontally
+            alignItems="center" // Center vertically
+          >
+            <Image
+              src={vartaLogo} // Replace with your logo's path
+              alt="Logo"
+              boxSize="100px"
+            />
+          </Box>
           <Heading size="md" fontSize="40px" textAlign="center">
             @VartaLaap
           </Heading>

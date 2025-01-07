@@ -147,7 +147,6 @@ const NewChatPage = () => {
                       </Box>
                       <Button
                         colorScheme="teal"
-                        variant="outline"
                         size="xs"
                         onClick={() => createChatHandler(user)}
                       >

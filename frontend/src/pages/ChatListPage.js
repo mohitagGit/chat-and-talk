@@ -18,6 +18,7 @@ import { useAuth } from "../context/AuthContext";
 import { ChatTitle } from "../logics/chatLogic";
 import { formatTimeStamp } from "../logics/timeLogic";
 import ChatLoadingSkeleton from "../loading/ChatLoadingSkeleton";
+import axiosInstance from "../routes/axiosInstance";
 
 const ChatListPage = () => {
   const { logoutUser, currentUser } = useAuth();
@@ -37,7 +38,7 @@ const ChatListPage = () => {
     };
 
     try {
-      const { data } = await axios.get("/api/chats", config);
+      const { data } = await axiosInstance.get("/api/chats", config);
       setChats(data.data);
       setLoading(false);
     } catch (error) {
@@ -165,8 +166,12 @@ const ChatListPage = () => {
                 </HStack>
               ))}
             </VStack>
-          ) : (
+          ) : loading ? (
             <ChatLoadingSkeleton />
+          ) : (
+            <Text textAlign="center">
+              Welcome to VartaLaap, Click on <b>+ Chat</b> to start
+            </Text>
           )}
         </Box>
         <Box height="10vh" textAlign="center">

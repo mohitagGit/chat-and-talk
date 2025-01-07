@@ -216,8 +216,12 @@ const ConversationPage = () => {
                   </HStack>
                 ))}
               </ScrollableFeed>
-            ) : (
+            ) : loading ? (
               <ConversationLoadingSkeleton />
+            ) : (
+              <Text textAlign="center" p={4}>
+                Say hello to start the conversation.
+              </Text>
             )}
           </Box>
 

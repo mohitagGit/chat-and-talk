@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import axiosInstance from "../routes/axiosInstance";
+import vartaLogo from "../img/logo.png";
 import {
   Input,
   Button,
@@ -15,7 +17,10 @@ import {
   CardBody,
   CardHeader,
   Flex,
+  Image,
+  Box,
 } from "@chakra-ui/react";
+import { px } from "framer-motion";
 
 const LoginPage = () => {
   const { loginUser } = useAuth();
@@ -48,7 +53,7 @@ const LoginPage = () => {
     setLoading(true);
     const config = { headers: { "Content-type": "application/json" } };
     try {
-      const userLoginData = await axios.post(
+      const userLoginData = await axiosInstance.post(
         "/api/users/signin",
         loginPayload,
         config
@@ -100,6 +105,17 @@ const LoginPage = () => {
     <Flex direction="column" h="100vh" maxW="lg" mx="auto" p={4} bg="lightgray">
       <Card>
         <CardHeader>
+          <Box
+            display="flex"
+            justifyContent="center" // Center horizontally
+            alignItems="center" // Center vertically
+          >
+            <Image
+              src={vartaLogo} // Replace with your logo's path
+              alt="Logo"
+              boxSize="100px"
+            />
+          </Box>
           <Heading
             size="md"
             fontSize="40px"
