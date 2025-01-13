@@ -127,7 +127,8 @@ const AudioCallPage = () => {
     });
     peer.on("signal", (data) => {
       socket.emit("CALL_USER", {
-        userToCall: chatId,
+        callType: "Audio",
+        chatId: chatId,
         signalData: data,
         initiator_id: currentUser.id,
         name: currentUser.name,

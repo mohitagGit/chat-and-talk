@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { registerPushNotifications } from "../utils/notificationUtil";
 import vartaLogo from "../img/logo.png";
 import {
   Input,
@@ -76,6 +77,7 @@ const SignupPage = () => {
         isClosable: true,
       });
       setLoading(false);
+      registerPushNotifications(userLoginData.data.data);
       navigate("/chats");
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {

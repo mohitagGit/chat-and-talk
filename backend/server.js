@@ -1,4 +1,5 @@
 const express = require("express");
+const webPush = require("web-push");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const colors = require("colors");
@@ -9,6 +10,10 @@ const path = require("path");
 const connectDB = require("./config/db");
 const { unknownEndpoint, errorHandler } = require("./middleware/errorHandler");
 const userRoutes = require("./routes/userRoutes");
+const {
+  newMessageNotification,
+  newCallNotification,
+} = require("./services/notificationService");
 
 dotenv.config();
 const app = express();
@@ -27,6 +32,16 @@ app.use("/api", userRoutes);
 app.get("/about", (req, res) => {
   res.send("Hey Nodejs About page");
 });
+
+const vapidKeys = webPush.generateVAPIDKeys();
+console.log("Public Key:", vapidKeys.publicKey);
+console.log("Private Key:", vapidKeys.privateKey);
+
+webPush.setVapidDetails(
+  "mailto:varta@yopmail.com",
+  "BG243oWtud_-lweR_SrJVkUsXrM4qacJDenstYIHjlo4hEflJoi6aoqxxS21tLKxuvwEaqiJaiFyPyhQKL7YPGU",
+  "qdBJNcQQqNrxw3Cbl7mnmrHekVktqTUSD4SAAIq1G9o"
+);
 
 // for deployment
 const __dirName1 = path.resolve();
@@ -80,6 +95,7 @@ io.on("connection", (socket) => {
     if (messageData && messageData.chatId) {
       const chatId = messageData.chatId;
       socket.to(chatId).emit("NEW_MESSAGE_TO_CLIENT", { messageData });
+      newMessageNotification(messageData);
     }
   });
 
@@ -101,12 +117,13 @@ io.on("connection", (socket) => {
 
   socket.on("CALL_USER", (data) => {
     console.log("CALL_USER: ", data);
-    io.to(data.userToCall).emit("RECEIVE_CALL", {
+    io.to(data.chatId).emit("RECEIVE_CALL", {
       signal: data.signalData,
       from: socket.id,
       initiator_id: data.initiator_id,
       name: data.name,
     });
+    newCallNotification(data);
   });
 
   socket.on("ANSWER_CALL", (data) => {

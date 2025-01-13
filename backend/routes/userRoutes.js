@@ -19,6 +19,10 @@ const {
   sendMessage,
   getAllMessages,
 } = require("../controllers/messageController");
+const {
+  notifSubscribe,
+  sendNotification,
+} = require("../controllers/notificationController");
 
 const router = express.Router();
 
@@ -37,5 +41,8 @@ router.route("/chats/:groupId/remove-member").put(authUserCheck, removeMember);
 
 router.route("/messages").post(authUserCheck, sendMessage);
 router.route("/messages/:groupId").get(authUserCheck, getAllMessages);
+
+router.route("/subscribe").post(authUserCheck, notifSubscribe);
+router.route("/send-notification").post(sendNotification);
 
 module.exports = router;

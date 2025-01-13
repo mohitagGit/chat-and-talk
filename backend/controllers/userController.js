@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
 const jwtToken = require("../config/jwtToken");
+const Subscriber = require("../models/notifSubscriberModel");
 
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, profile_pic } = req.body;
@@ -37,6 +38,7 @@ const registerUser = asyncHandler(async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         token: jwtToken(newUser),
+        subscriber: [],
       },
     });
   } else {
@@ -59,6 +61,12 @@ const signInUser = asyncHandler(async (req, res) => {
 
   const isPassMatch = await bcrypt.compare(password, user.password);
   if (isPassMatch) {
+    const subscriber = await Subscriber.find(
+      {
+        userId: user._id,
+      },
+      { _id: 1, endpoint: 1, isActive: 1 }
+    );
     res.status(200).json({
       message: "User loggedin successfully.",
       data: {
@@ -66,6 +74,7 @@ const signInUser = asyncHandler(async (req, res) => {
         name: user.name,
         email: user.email,
         token: jwtToken(user),
+        subscriber: subscriber,
       },
     });
   } else {

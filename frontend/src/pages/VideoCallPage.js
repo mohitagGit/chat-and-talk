@@ -125,7 +125,8 @@ const VideoCallPage = () => {
     });
     peer.on("signal", (data) => {
       socket.emit("CALL_USER", {
-        userToCall: chatId,
+        callType: "Video",
+        chatId: chatId,
         signalData: data,
         initiator_id: currentUser.id,
         name: currentUser.name,

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 // import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import axiosInstance from "../routes/axiosInstance";
+import { registerPushNotifications } from "../utils/notificationUtil";
 import vartaLogo from "../img/logo.png";
 import {
   Input,
@@ -69,6 +70,7 @@ const LoginPage = () => {
         isClosable: true,
       });
       setLoading(false);
+      registerPushNotifications(userLoginData.data.data);
       navigate("/chats");
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
