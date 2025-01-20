@@ -83,6 +83,7 @@ const EditChatPage = () => {
     } catch (error) {
       console.log(error.message);
       setLoading(false);
+      checkUserAuth(error.status);
     }
   };
 
@@ -120,6 +121,7 @@ const EditChatPage = () => {
     } catch (error) {
       console.log(error.message);
       setLoading(false);
+      checkUserAuth(error.status);
     }
   };
 
@@ -147,6 +149,7 @@ const EditChatPage = () => {
     } catch (error) {
       console.log(error.message);
       setLoading(false);
+      checkUserAuth(error.status);
     }
   };
 

@@ -31,7 +31,7 @@ console.log("backend_url", backend_url);
 const socket = io.connect(backend_url);
 
 const ConversationPage = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, checkUserAuth } = useAuth();
   const { chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [chatData, setChatData] = useState({});
@@ -60,6 +60,7 @@ const ConversationPage = () => {
     } catch (error) {
       console.log(error.message);
       setLoading(false);
+      checkUserAuth(error.status);
     }
   };
 
@@ -94,6 +95,7 @@ const ConversationPage = () => {
     } catch (error) {
       console.log(error.message);
       setLoading(false);
+      checkUserAuth(error.status);
     }
   };
 

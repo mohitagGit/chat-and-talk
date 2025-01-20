@@ -21,7 +21,7 @@ import ChatLoadingSkeleton from "../loading/ChatLoadingSkeleton";
 import axiosInstance from "../routes/axiosInstance";
 
 const ChatListPage = () => {
-  const { logoutUser, currentUser } = useAuth();
+  const { logoutUser, currentUser, checkUserAuth } = useAuth();
   const [chats, setChats] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,6 +44,7 @@ const ChatListPage = () => {
     } catch (error) {
       setErrorMessage(error.message);
       setLoading(false);
+      checkUserAuth(error.status);
     }
   };
 

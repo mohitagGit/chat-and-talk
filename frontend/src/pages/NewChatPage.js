@@ -20,7 +20,7 @@ import { useAuth } from "../context/AuthContext";
 import BackButton from "../components/BackButton";
 
 const NewChatPage = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, checkUserAuth } = useAuth();
   const [searchquery, setSearchquery] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -60,6 +60,7 @@ const NewChatPage = () => {
       setErrorMessage(error.message);
       setLoading(false);
       console.log(errorMessage);
+      checkUserAuth(error.status);
     }
   };
 
@@ -91,6 +92,7 @@ const NewChatPage = () => {
       setErrorMessage(error.message);
       setLoading(false);
       console.log(errorMessage);
+      checkUserAuth(error.status);
     }
   };
 

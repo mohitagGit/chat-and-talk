@@ -22,7 +22,7 @@ if (window.location.host === "varta-ls5r.onrender.com") {
 const socket = io.connect(backend_url);
 
 const AudioCallPage = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, checkUserAuth } = useAuth();
   const { chatId } = useParams();
   const [stream, setStream] = useState();
   const [callStatusData, setCallStatusData] = useState({});
@@ -129,6 +129,7 @@ const AudioCallPage = () => {
       await axios.put(`/api/calls/${pCallId}`, statusPayload, config);
     } catch (error) {
       console.log(error.message);
+      checkUserAuth(error.status);
     }
   };
 
@@ -150,7 +151,7 @@ const AudioCallPage = () => {
     }, 20000); // 20 seconds
   };
 
-  const pauseIncomingCallAudio = () => {
+  const stopIncomingCallAudio = () => {
     // to stop timer of 15 seconds
     if (callRingTimerRef.current) {
       clearTimeout(callRingTimerRef.current);
@@ -205,7 +206,7 @@ const AudioCallPage = () => {
 
   const answerCall = () => {
     setCallAccepted(true);
-    pauseIncomingCallAudio();
+    stopIncomingCallAudio();
     const peer = new Peer({
       initiator: false,
       trickle: false,
@@ -238,7 +239,7 @@ const AudioCallPage = () => {
     socket.emit("DECLINE_CALL", declineCallPayload);
     setReceivingCall(false);
     setCallAccepted(false);
-    pauseIncomingCallAudio();
+    stopIncomingCallAudio();
     setCurrentCallStatus("YOU_DECLINED_THE_CALL");
   };
 
@@ -260,7 +261,7 @@ const AudioCallPage = () => {
         },
       };
       socket.emit("MISSED_CALL", missedCallPayload);
-      pauseIncomingCallAudio();
+      stopIncomingCallAudio();
       setReceivingCall(false);
       setCallAccepted(false);
       setCurrentCallStatus("CALL_MISSED_BY_YOU");

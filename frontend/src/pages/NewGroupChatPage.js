@@ -26,7 +26,7 @@ import { useAuth } from "../context/AuthContext";
 import BackButton from "../components/BackButton";
 
 const NewGroupChatPage = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, checkUserAuth } = useAuth();
   const [searchquery, setSearchquery] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -70,6 +70,7 @@ const NewGroupChatPage = () => {
       setErrorMessage(error.message);
       setLoading(false);
       console.log(errorMessage);
+      checkUserAuth(error.status);
     }
   };
 
@@ -108,6 +109,7 @@ const NewGroupChatPage = () => {
       setErrorMessage(error.message);
       setLoading(false);
       console.log(errorMessage);
+      checkUserAuth(error.status);
     }
   };
 
