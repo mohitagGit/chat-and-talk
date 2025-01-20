@@ -40,6 +40,7 @@ const createChat = asyncHandler(async (req, res) => {
       chatName: "OTO",
       isGroup: false,
       members: [req.user._id, recipientId],
+      createdBy: req.user._id,
     };
 
     try {
@@ -117,6 +118,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
     about: description,
     isGroup: true,
     members: members,
+    createdBy: req.user._id,
     admin: req.user._id,
   };
 

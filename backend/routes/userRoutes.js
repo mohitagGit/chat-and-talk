@@ -20,6 +20,12 @@ const {
   getAllMessages,
 } = require("../controllers/messageController");
 const {
+  initiateCall,
+  updateCallDetails,
+  getCallDetails,
+  getCallHistory,
+} = require("../controllers/callController");
+const {
   notifSubscribe,
   sendNotification,
 } = require("../controllers/notificationController");
@@ -41,6 +47,11 @@ router.route("/chats/:groupId/remove-member").put(authUserCheck, removeMember);
 
 router.route("/messages").post(authUserCheck, sendMessage);
 router.route("/messages/:groupId").get(authUserCheck, getAllMessages);
+
+router.route("/calls").post(authUserCheck, initiateCall);
+router.route("/calls/:callId").put(authUserCheck, updateCallDetails);
+router.route("/calls/:callId").get(authUserCheck, getCallDetails);
+router.route("/calls").get(authUserCheck, getCallHistory);
 
 router.route("/subscribe").post(authUserCheck, notifSubscribe);
 router.route("/send-notification").post(sendNotification);

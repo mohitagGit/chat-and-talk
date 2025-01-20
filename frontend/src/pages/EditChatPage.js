@@ -29,7 +29,7 @@ import { ChatTitle, ChatDescription, IsGroupAdmin } from "../logics/chatLogic";
 import { EditChatLoadingSkeleton } from "../loading/EditChatLoadingSkeleton";
 
 const EditChatPage = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, checkUserAuth } = useAuth();
   const { chatId } = useParams();
   const [chatData, setChatData] = useState({});
   const [searchUserList, setSearchUserList] = useState([]);
@@ -55,6 +55,7 @@ const EditChatPage = () => {
     } catch (error) {
       console.log(error.message);
       setLoading(false);
+      checkUserAuth(error.status);
     }
   };
 

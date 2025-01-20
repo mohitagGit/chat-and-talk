@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import { useParams } from "react-router-dom";
 import Peer from "simple-peer";
 import io from "socket.io-client";
 import "../../src/App.css";
-import { Avatar, Box, IconButton } from "@chakra-ui/react";
+import { Avatar, Box, IconButton, Text } from "@chakra-ui/react";
 import { useAuth } from "../context/AuthContext";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import { Button, Flex, Card, Center, useToast } from "@chakra-ui/react";
@@ -24,6 +25,8 @@ const AudioCallPage = () => {
   const { currentUser } = useAuth();
   const { chatId } = useParams();
   const [stream, setStream] = useState();
+  const [callStatusData, setCallStatusData] = useState({});
+  const [currentCallStatus, setCurrentCallStatus] = useState("START_CALL");
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [receivingCall, setReceivingCall] = useState(false);
   const [caller, setCaller] = useState("");
@@ -36,7 +39,9 @@ const AudioCallPage = () => {
   const callAudioRef = useRef(null);
   const analyserRef = useRef(null);
   const audioContextRef = useRef(null);
+  const callRingTimerRef = useRef(null);
   const toast = useToast();
+  const callTypeRef = "Audio";
 
   useEffect(() => {
     navigator.mediaDevices
@@ -53,12 +58,16 @@ const AudioCallPage = () => {
         setName(data.name);
         setCallerSignal(data.signal);
         playIncomingCallAudio();
+        updateCallStatus(data.call_data.callId, "ringing");
+        setCallStatusData(data.call_data);
+        setCurrentCallStatus("INCOMING_CALL");
       }
     });
 
     socket.on("CALL_DECLINED", (data) => {
       console.log("Call declined by the other user");
       setCallAccepted(false);
+      setCurrentCallStatus("CALL_DECLINED");
       toast({
         title: "Call Declined",
         description: `Call declined by ${data.from}`,
@@ -71,6 +80,7 @@ const AudioCallPage = () => {
     socket.on("CALL_ENDED", (data) => {
       console.log("Call disconnected by the other user");
       setCallEnded(true);
+      setCurrentCallStatus("CALL_FINISHED");
       toast({
         title: "Call Ended",
         description: `Call ended by ${data.from}`,
@@ -80,15 +90,47 @@ const AudioCallPage = () => {
       });
     });
 
+    socket.on("CALL_NOT_ANSWERED", (data) => {
+      setCurrentCallStatus("CALL_NOT_ANSWERED");
+    });
+
     socket.emit("JOINED_CALL_ROOM", chatId);
 
     // Clean up the stream on page change
     return () => {
-      // socket.emit("END_CALL", { to: caller, from: currentUser });
-      // socket.off("RECEIVE_CALL");
-      // socket.off("CALL_ACCEPTED");
+      if (callRingTimerRef.current) {
+        clearTimeout(callRingTimerRef.current);
+        callRingTimerRef.current = null;
+      }
     };
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("callStatus", currentCallStatus);
+    if (currentCallStatus === "CALL_CONNECTED") {
+      // use updated call status here
+    }
+  }, [currentCallStatus]);
+
+  // to update call status
+  const updateCallStatus = async (pCallId, pStatus) => {
+    const statusPayload = {
+      chatId: chatId,
+      status: pStatus,
+    };
+
+    const config = {
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${currentUser.token}`,
+      },
+    };
+    try {
+      await axios.put(`/api/calls/${pCallId}`, statusPayload, config);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   // to play incoming call audio
   const playIncomingCallAudio = () => {
@@ -96,13 +138,26 @@ const AudioCallPage = () => {
       callAudioRef.current = new Audio(incomingCallAudioFile);
     }
 
+    callAudioRef.current.currentTime = 0;
     callAudioRef.current.loop = true;
     callAudioRef.current.play().catch((error) => {
       console.error("Error playing incoming call sound:", error);
     });
+
+    // to stop ring after 15 seconds if not answered
+    callRingTimerRef.current = setTimeout(() => {
+      missedCall();
+    }, 20000); // 20 seconds
   };
 
   const pauseIncomingCallAudio = () => {
+    // to stop timer of 15 seconds
+    if (callRingTimerRef.current) {
+      clearTimeout(callRingTimerRef.current);
+      callRingTimerRef.current = null;
+    }
+
+    // to stop ringing audio
     if (callAudioRef.current) {
       callAudioRef.current.pause();
       callAudioRef.current.currentTime = 0;
@@ -127,12 +182,13 @@ const AudioCallPage = () => {
     });
     peer.on("signal", (data) => {
       socket.emit("CALL_USER", {
-        callType: "Audio",
+        callType: callTypeRef,
         chatId: chatId,
         signalData: data,
         initiator_id: currentUser.id,
         name: currentUser.name,
       });
+      setCurrentCallStatus("CALLING");
     });
     peer.on("stream", (remoteAudio) => {
       setupAudioAnalysis(remoteAudio);
@@ -142,6 +198,7 @@ const AudioCallPage = () => {
       setCallAccepted(true);
       peer.signal(signal);
       console.log("Call accepted: ", signal);
+      setCurrentCallStatus("CALL_ACCEPTED");
     });
     connectionRef.current = peer;
   };
@@ -163,20 +220,58 @@ const AudioCallPage = () => {
     });
     peer.signal(callerSignal);
     connectionRef.current = peer;
+    setCurrentCallStatus("CALL_CONNECTED");
   };
 
   const declineCall = () => {
     // Notify the caller that the call is declined
-    socket.emit("DECLINE_CALL", { to: caller, from: currentUser });
+    console.log("Call data", callStatusData);
+    const declineCallPayload = {
+      callType: callTypeRef,
+      to: caller,
+      chatId: chatId,
+      from: {
+        id: currentUser.id,
+        name: currentUser.name,
+      },
+    };
+    socket.emit("DECLINE_CALL", declineCallPayload);
     setReceivingCall(false);
     setCallAccepted(false);
     pauseIncomingCallAudio();
+    setCurrentCallStatus("YOU_DECLINED_THE_CALL");
+  };
+
+  const missedCall = () => {
+    const localCallStatus = localStorage.getItem("callStatus");
+    if (
+      localCallStatus !== "CALL_CONNECTED" &&
+      localCallStatus !== "YOU_DECLINED_THE_CALL"
+    ) {
+      console.log("Call data in Missed call: ", callStatusData);
+      const missedCallPayload = {
+        callType: callTypeRef,
+        callId: callStatusData.callId,
+        to: caller,
+        chatId: chatId,
+        from: {
+          id: currentUser.id,
+          name: currentUser.name,
+        },
+      };
+      socket.emit("MISSED_CALL", missedCallPayload);
+      pauseIncomingCallAudio();
+      setReceivingCall(false);
+      setCallAccepted(false);
+      setCurrentCallStatus("CALL_MISSED_BY_YOU");
+    }
   };
 
   const leaveCall = () => {
     socket.emit("END_CALL", { to: caller, from: currentUser });
     setCallEnded(true);
     connectionRef.current.destroy();
+    setCurrentCallStatus("CALL_ENDED_BY_YOU");
   };
 
   const toggleAudio = () => {
@@ -264,6 +359,7 @@ const AudioCallPage = () => {
                 color={audioEnabled ? "teal.500" : "red.500"}
                 onClick={toggleAudio}
               />
+              {currentCallStatus ? <Text>{currentCallStatus}</Text> : ""}
               {/* {callAccepted && !callEnded && (
                 <IconButton
                   aria-label="End Call"

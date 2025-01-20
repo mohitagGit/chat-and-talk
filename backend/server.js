@@ -13,7 +13,9 @@ const userRoutes = require("./routes/userRoutes");
 const {
   newMessageNotification,
   newCallNotification,
+  declinedCallNotification,
 } = require("./services/notificationService");
+const { updateCallStatus, initiateCall } = require("./services/callService");
 
 dotenv.config();
 const app = express();
@@ -115,29 +117,68 @@ io.on("connection", (socket) => {
     console.log("User Joined Chat Room: " + chatId);
   });
 
-  socket.on("CALL_USER", (data) => {
+  socket.on("CALL_USER", async (data) => {
     console.log("CALL_USER: ", data);
+    const payload = {
+      userId: data.initiator_id,
+      callType: data.callType,
+      chatId: data.chatId,
+    };
+    const newCall = await initiateCall(payload);
+    console.log("New call data: ", newCall);
     io.to(data.chatId).emit("RECEIVE_CALL", {
       signal: data.signalData,
       from: socket.id,
       initiator_id: data.initiator_id,
       name: data.name,
+      call_data: newCall,
     });
     newCallNotification(data);
   });
 
-  socket.on("ANSWER_CALL", (data) => {
+  socket.on("ANSWER_CALL", async (data) => {
     console.log("ANSWER_CALL: ", data);
+    // const payload = {
+    //   userId: data.initiator_id,
+    //   callId: data.callId,
+    //   status: "answered",
+    // };
+    // const updatedCall = await updateCallStatus(payload);
     io.to(data.to).emit("CALL_ACCEPTED", data.signal);
   });
 
-  socket.on("DECLINE_CALL", (data) => {
+  socket.on("DECLINE_CALL", async (data) => {
     console.log("DECLINE_CALL: ", data);
+    // const payload = {
+    //   userId: data.from.id,
+    //   callId: data.callId,
+    //   status: "declined",
+    // };
+    // const updatedCall = await updateCallStatus(payload);
     io.to(data.to).emit("CALL_DECLINED", { from: data.from.name });
+    declinedCallNotification(data);
   });
 
-  socket.on("END_CALL", (data) => {
+  socket.on("MISSED_CALL", async (data) => {
+    console.log("MISSED_CALL: ", data);
+    const payload = {
+      userId: data.from.id,
+      callId: data.callId,
+      status: "missed",
+    };
+    const updatedCall = await updateCallStatus(payload);
+    io.to(data.to).emit("CALL_NOT_ANSWERED", { from: data.from.name });
+    declinedCallNotification(data);
+  });
+
+  socket.on("END_CALL", async (data) => {
     console.log("END_CALL: ", data);
+    // const payload = {
+    //   userId: data.from.id,
+    //   callId: data.callId,
+    //   status: "ended",
+    // };
+    // const updatedCall = await updateCallStatus(payload);
     io.to(data.to).emit("CALL_ENDED", { from: data.from.name });
   });
 });

@@ -39,11 +39,25 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("current-user");
   };
 
+  const checkUserAuth = (errorCode) => {
+    if (errorCode === 401) {
+      localStorage.removeItem("current-user");
+      navigate("/");
+    }
+  };
+
   const isAuthenticated = !!(currentUser && currentUser.token); // True if user is not null
 
   return (
     <AuthContext.Provider
-      value={{ loading, currentUser, isAuthenticated, loginUser, logoutUser }}
+      value={{
+        loading,
+        currentUser,
+        isAuthenticated,
+        loginUser,
+        logoutUser,
+        checkUserAuth,
+      }}
     >
       {children}
     </AuthContext.Provider>
